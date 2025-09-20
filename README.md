@@ -19,7 +19,55 @@ O objetivo é praticar construção de páginas web estáticas com HTML, CSS e J
 
 ---
 
-## 📁 Estrutura dos Arquivos
+## 🏛️ Estrutura do Projeto
+
+Este projeto adota uma arquitetura organizada para separar as responsabilidades do Back-end e do Front-end, seguindo as melhores práticas de desenvolvimento com Node.js e Express, facilitando a manutenção e a escalabilidade.
+
+```
+/
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── index.html
+├── src/
+│   ├── data/
+│   │   └── booksData.js
+│   ├── database/
+│   │   ├── database.js
+│   │   └── booksSeed.js
+│   ├── controllers/
+│   │   └── bookController.js
+│   ├── routes/
+│   │   └── books.js
+│   └── app.js
+├── .gitignore
+├── server.js
+├── package.json
+└── README.md
+```
+
+### Descrição dos Diretórios
+
+-   **`/` (Raiz)**
+    -   Contém os arquivos de configuração e inicialização do projeto.
+    -   `server.js`: **Ponto de Entrada.** Sua única responsabilidade é carregar a aplicação configurada (`app.js`) e iniciar o servidor.
+    -   `package.json`: Gerencia todas as dependências do Node.js e os scripts do projeto.
+
+-   **`/public`**
+    -   Pasta dedicada a todos os arquivos do **Front-end**. É a única parte do projeto que o navegador do usuário acessa diretamente.
+    -   `/css`: Contém as folhas de estilo (CSS).
+    -   `/js`: Contém os arquivos JavaScript que rodam no cliente (navegador) para interatividade.
+    -   Arquivos `.html`: As páginas que estruturam o site.
+
+-   **`/src`**
+    -   Contém todo o código-fonte do **Back-end** (lógica do servidor).
+    -   `app.js`: Responsável por criar a instância do Express, configurar os middlewares (regras gerais) e conectar as rotas da API.
+    -   `/controllers`: Contêm a lógica de negócio da aplicação. Cada função aqui é responsável por uma tarefa específica.
+    -   `/routes`: Mapeiam as URLs e os métodos HTTP (GET, POST, etc.) para as funções correspondentes nos `controllers`. Não contêm lógica de negócio, apenas direcionam as requisições.
+    -   `/database`: Responsável por toda a comunicação com o banco de dados (conectar, criar tabelas, e as funções que inserem e buscam dados).
+    -   `/data`: Armazena dados estáticos, como a lista inicial de livros usada para popular o banco de dados.
+
+## 📁 Descrição dos arquivos HTML
 
 | Arquivo/Pasta     | Descrição                                                  |
 |--------------------|------------------------------------------------------------|
@@ -28,8 +76,6 @@ O objetivo é praticar construção de páginas web estáticas com HTML, CSS e J
 | categorias.html    | Página de listagem por categoria                          |
 | busca.html         | Página para realizar buscas                                |
 | checkout.html      | Fluxo simulado de finalização de compra                    |
-| style.css          | Estilos do site                                            |
-| js/                | Scripts para interação, busca, manipulação DOM etc.        |
 
 ---
 

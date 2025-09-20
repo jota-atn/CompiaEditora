@@ -1,6 +1,6 @@
 //Adicionar os livros inicias no BD
 const { insertBooks } = require('./database');
-const booksData = require('./booksData');
+const booksData = require('../data/booksData');
 
 // Itera sobre todos os livros e adiciona no banco
 booksData.forEach((book) => {
