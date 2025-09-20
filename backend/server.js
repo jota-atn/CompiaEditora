@@ -1,8 +1,11 @@
 const express = require('express');
+const path = require('path');
 const { db, insertBooks, getAllBooks } = require('./database');
 //Importa as funções do BD
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json()); // Permite ler JSON do corpo da requisição
 
 const PORT = 3000;
@@ -24,4 +27,6 @@ app.get('/books', (req, res) => {
     });
 });
 
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+     console.log(`Servidor rodadando em http://localhost:${PORT}`);
+});
