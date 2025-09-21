@@ -17,7 +17,7 @@ export function createBookCardHTML(book) {
     }
 
     return `
-        <div class="bg-white rounded-xl book-hover flex flex-col h-full overflow-hidden cursor-pointer" data-book-id="${book.id}"> 
+        <div class="bg-white rounded-xl book-hover flex flex-col h-full overflow-hidden cursor-pointer book-card" data-book-id="${book.id}"> 
             
             <div class="h-72 flex items-center justify-center bg-gray-100 p-4">
                 <img src="${book.coverImage}" alt="Capa do livro ${book.title}" class="max-h-full w-auto object-contain">
@@ -157,6 +157,7 @@ export function initializeBookModal() {
         modal.classList.remove('opacity-100');
         setTimeout(() => {
             modal.classList.add('hidden');
+            modal.classList.remove('flex'); 
         }, 300);
     };
 
@@ -194,41 +195,51 @@ export function initializeBookModal() {
         for (let i = 1; i <= 5; i++) {
             ratingContainer.innerHTML += `<svg class="w-5 h-5 ${i <= book.rating ? 'text-yellow-400' : 'text-gray-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`;
         }
+        
         modal.classList.remove('hidden');
+        modal.classList.add('flex'); 
         setTimeout(() => {
             modal.classList.add('opacity-100');
             modalContent.classList.add('scale-100');
         }, 10);
     };
 
-    document.body.addEventListener('click', (e) => {
-        const bookCard = e.target.closest('[data-book-id]');
-        const isAddToCartClick = e.target.closest('.add-to-cart');
+    closeModalBtn.addEventListener('click', closeModal);
 
-        if (bookCard && !isAddToCartClick) {
-            const bookId = bookCard.dataset.bookId;
-            const book = booksData.find(b => b.id.toString() === bookId);
-            if (book && book.editions && book.editions.length > 0) {
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+    
+    addToCartBtn.addEventListener('click', () => {
+        const bookId = parseInt(addToCartBtn.dataset.bookId, 10);
+        const selectedFormat = formatsContainer.querySelector('.format-btn.selected');
+        if (bookId && selectedFormat) {
+            const format = selectedFormat.dataset.format;
+            addToCart(bookId, format);
+            alert('Livro adicionado ao carrinho!');
+            closeModal();
+        }
+    });
+    
+    document.body.addEventListener('click', (event) => {
+        const bookCard = event.target.closest('.book-card[data-book-id]');
+        if (bookCard) {
+            const bookId = parseInt(bookCard.dataset.bookId, 10);
+            const book = booksData.find(b => b.id === bookId);
+            if (book) {
                 openModal(book);
             }
         }
     });
-
-    formatsContainer.addEventListener('click', (e) => {
-        const clickedButton = e.target.closest('.format-btn');
-        if (!clickedButton || clickedButton.disabled) return;
-
-        formatsContainer.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('selected'));
-        clickedButton.classList.add('selected');
-
-        const newPrice = parseFloat(clickedButton.dataset.price);
-        priceEl.textContent = `R$ ${newPrice.toFixed(2).replace('.', ',')}`;
-    });
-
-    closeModalBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
+    
+    formatsContainer.addEventListener('click', (event) => {
+        const target = event.target.closest('.format-btn');
+        if (target && !target.disabled) {
+            formatsContainer.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('selected'));
+            target.classList.add('selected');
+            priceEl.textContent = `R$ ${parseFloat(target.dataset.price).toFixed(2).replace('.', ',')}`;
         }
     });
 }
