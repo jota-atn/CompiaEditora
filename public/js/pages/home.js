@@ -57,4 +57,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchAllBooks();
     const books = getBooks();
     renderCatalogCarousel(books);
+
+    function updateImages() {
+        if (books.length >= 3) {
+            const heroBook1 = books[5]; 
+            const heroBook2 = books[6];
+            const heroBook3 = books[7];
+
+            const img1 = document.getElementById('capa1');
+            const img2 = document.getElementById('capa2');
+            const img3 = document.getElementById('capa3');
+
+            if (img1) img1.src = heroBook1.coverImage;
+            if (img2) img2.src = heroBook2.coverImage;
+            if (img3) img3.src = heroBook3.coverImage;
+        }
+    }
+    updateImages();
+
 });

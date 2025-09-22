@@ -29,7 +29,7 @@ const booksData = [
     {
         title: 'Ethical Hacking: Segurança Ofensiva',
         author: 'Dra. Maria Oliveira',
-        coverImage: 'https://m.media-amazon.com/images/I/91LldWCllgS._SL1500_.jpg',
+        coverImage: 'https://m.media-amazon.com/images/I/61+9qPywKsL._UF1000,1000_QL80_.jpg',
         category: 'Cibersegurança',
         rating: 5,
         language: 'Inglês',

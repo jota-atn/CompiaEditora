@@ -1,15 +1,24 @@
-const express = require('express');
-const path = require('path');
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import cors from 'cors';
 
-const booksRoutes = require('./routes/books.js');
-const freteRoutes = require('./routes/frete.js');
-
+import booksRouter from './routes/books.js';
+// import freteRoutes from './src/routes/frete.js';
+ 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(express.static('public'));
-app.use(express.json());
+app.use(cors()); // Habilita o CORS
+app.use(express.json()); // Habilita o Express a ler JSON
 
-app.use('/api/books', booksRoutes);
-app.use('/api/frete', freteRoutes)
+// Servir arquivos estáticos (HTML, CSS, JS do front)
+app.use(express.static(path.join(__dirname, '../public')));
 
-module.exports = app;
+// booksRouter irá gerenciar as requisições para /api/books
+app.use('/api/books', booksRouter);
+// app.use('/api/frete', freteRoutes);//Descomentar quando pronto
+
+// Exporta o app para o server.js usar
+export default app;
