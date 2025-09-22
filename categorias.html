@@ -11,7 +11,8 @@
 </head>
 <body class="bg-gray-100">
     <header class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between w-full">
                 <a href="#home" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
@@ -29,9 +30,9 @@
                     <a href="#about" class="nav-link">Sobre</a> 
                 </nav>
                 
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="relative hidden sm:block">
+                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 w-32 sm:w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -42,30 +43,41 @@
                         </svg>
                         <span id="cart-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-count">0</span>
                     </button>
-                    <div class="relative">
+                    <div class="relative hidden md:block">
                         <button id="profile-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </button>
-                        <div id="profile-dropdown" 
-                            class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
-                                    transition-opacity duration-300 ease-in-out opacity-0 invisible">
-                            
-                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
-                                Meus Dados
-                            </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
-                            </a>
+                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200 transition-opacity duration-300 ease-in-out opacity-0 invisible">
+                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">Meus Dados</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
                         </div>
                     </div>
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-700 hover:text-blue-800">
+                        <span class="sr-only">Abrir menu</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <nav class="flex flex-col p-4 space-y-2">
+                <a href="./index.html" class="nav-link px-3 py-2 rounded-md hover:bg-gray-100">Início</a>
+                <a href="./categorias.html" class="nav-link px-3 py-2 rounded-md hover:bg-gray-100">Categorias</a>
+                <a href="./catalogo.html" class="nav-link px-3 py-2 rounded-md hover:bg-gray-100">Catálogo</a>
+                <a href="#about" class="nav-link px-3 py-2 rounded-md hover:bg-gray-100">Sobre</a>
+                <a href="perfil.html" class="nav-link px-3 py-2 rounded-md hover:bg-gray-100 border-t pt-3 mt-2">Meus Dados</a>
+            </nav>
+        </div>
     </header>
 
-    <button id="sidebar-toggle" class="fixed z-50 top-24 left-4 md:hidden"></button>
+    <button id="sidebar-toggle" class="md:hidden fixed z-50 bottom-6 right-6 flex items-center justify-center w-14 h-14 bg-blue-700 text-white rounded-full shadow-lg hover:bg-blue-800 transition-colors">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L16 11.414V16a1 1 0 01-.293.707l-2 2A1 1 0 0113 18v-1.586l-3.707-3.707A1 1 0 019 12V6.414L3.293 4.707A1 1 0 013 4z"></path></svg>
+    </button>
 
     <button id="desktop-sidebar-toggle" class="hidden md:block fixed z-50 top-24 bg-white text-gray-700 rounded-r-lg p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,7 +153,7 @@
         </div>
     </footer>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center">
         <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-800">Carrinho de Compras</h3>
@@ -167,7 +179,7 @@
         </div>
     </div>
 
-    <div id="book-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+    <div id="book-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 items-center justify-center p-4 transition-opacity duration-300">
         <div id="book-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-4xl w-full mx-auto relative transform scale-95 transition-transform duration-300">
             <button id="close-book-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,6 +226,15 @@
     
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script type="module" src="js/pages/categories.js"></script>
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
 </body>
 </html>
 

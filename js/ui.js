@@ -349,7 +349,7 @@ export function createCarouselSectionHTML(title, books, sectionId, noResultsMess
     if (!books || books.length === 0) {
         if (!noResultsMessage) return '';
         return `
-            <section class="container mx-auto px-4 mb-0">
+            <section class="container mx-auto px-4 mb-8">
                 <h2 class="text-3xl font-bold text-gray-200 pb-2 border-b-2 border-gray-500">${title}</h2>
                 <p class="text-lg text-gray-300 mt-6 bg-white/5 p-6 rounded-lg">${noResultsMessage}</p>
             </section>
