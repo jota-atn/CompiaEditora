@@ -147,4 +147,4 @@ const booksData = [
     }
 ];
 //Exportar os livros
-module.exports = booksData;
+export default booksData;

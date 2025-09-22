@@ -1,20 +1,20 @@
-const sqlite3 = require('sqlite3').verbose();
-//Importando o SQLite pro Node, verbose para logs detalhados
+import sqlite3 from 'sqlite3';
+//Importando o SQLite pro Node
 
-const db = new sqlite3.Database('./editora.db', (err) => {
     //Tenta conectar ao BD, em caso de sucesso chama a função de criar tabelas, em caso de falha retorna erro.
+const db = new sqlite3.Database('./src/database/editora.db', (err) => {
     if (err) {
         console.error('Erro ao conectar ao banco de dados:', err.message);
     }
     else{
-        console.log('Conectado ao banco de dados')
-        createTables();
+        console.log('Conectado ao banco de dados');
+        // REMOVEMOS A CHAMADA createTables() DAQUI
     }
 });
 
  
-function createTables() {
-    // Função de criar tabelas no BD
+export function createTables(callback) {
+    // Exporta a função de criar tabelas no BD
     // Serialize faz rodar em ordem
     db.serialize(() => {
         //Cria a tabela de livros
@@ -30,11 +30,8 @@ function createTables() {
                 description TEXT
             )
         `, (err) => {
-            if (err) {
-                console.error('Erro ao criar tabela de livros:', err.message);
-            } else {
-                console.log('Tabela "livros" pronta.');
-            }
+            if (err) console.error('Erro ao criar tabela "books":', err.message);
+            else console.log('Tabela "books" verificada/pronta.');
         });
 
         // Cria a tabela de edições de livros
@@ -48,16 +45,15 @@ function createTables() {
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
             )
         `, (err) => {
-            if (err) {
-                console.error('Erro ao criar tabela de edições:', err.message);
-            } else {
-                console.log('Tabela "edicoes" pronta.');
-            }
+            if (err) console.error('Erro ao criar tabela "editions":', err.message);
+            else console.log('Tabela "editions" verificada/pronta.');
+        //Callback para controlar a ordem de execução
+            callback?.()
         });
     });
 }
-// Função para adicionar livro com suas edições
-function insertBooks(book, callback) {
+// Exportar função para adicionar livro com suas edições
+export function insertBooks(book, callback) {
     const queryBook = `
         INSERT INTO books (title, author, coverImage, category, rating, language, description)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -72,7 +68,7 @@ function insertBooks(book, callback) {
         book.language,
         book.description
     ], 
-    //Insere os livros formando pro BD
+    //Insere os livros formatando pro BD
     function(err) {
         if (err) return callback(err);
 
@@ -89,7 +85,7 @@ function insertBooks(book, callback) {
 }
 
 // Função para buscar TODOS os livros com suas edições
-function getAllBooks(callback) {
+export function getAllBooks(callback) {
     db.all(`SELECT * FROM books`, [], (err, books) => {
         if (err) return callback(err);
 
@@ -111,11 +107,7 @@ function getAllBooks(callback) {
 }
 
 // Exporta as funções e o objeto db
-module.exports = {
-    db,
-    insertBooks,
-    getAllBooks
-};
+export default db;
 
 //TODO: Criar mais funções de consulta
 //TODO: Exportar livros pro frontend

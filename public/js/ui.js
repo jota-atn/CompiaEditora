@@ -1,5 +1,5 @@
 import { addToCart } from './cart.js';
-import { booksData } from './data.js'
+import { getBookById, getBooks } from './bookService.js';
 
 let swiperInstances = [];
 
@@ -82,7 +82,7 @@ export function initializeGlobalUI() {
                 formatToAdd = selectedButton.dataset.format;
             }
         } else {
-            const book = booksData.find(b => b.id === bookId);
+            const book = getBookById(bookId);
             if (book && book.editions && book.editions.length > 0) {
                 const cheapestEdition = [...book.editions].sort((a, b) => a.price - b.price)[0];
                 formatToAdd = cheapestEdition.format;
@@ -207,7 +207,7 @@ export function initializeBookModal() {
 
         if (bookCard && !isAddToCartClick) {
             const bookId = bookCard.dataset.bookId;
-            const book = booksData.find(b => b.id.toString() === bookId);
+            const book = getBookById(bookId);
             if (book && book.editions && book.editions.length > 0) {
                 openModal(book);
             }
@@ -272,7 +272,7 @@ export function setupBackToTopButton() {
     backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-export function setupFilters(renderFunction) {
+export function setupFilters(renderFunction, books) {
     const minPriceEl = document.getElementById('min-price');
     const maxPriceEl = document.getElementById('max-price');
     const authorInputEl = document.getElementById('author-input');
@@ -302,7 +302,7 @@ export function setupFilters(renderFunction) {
 
         const authorQuery = authorInputEl.value.trim().toLowerCase();
 
-        const filteredBooks = booksData.filter(book => {
+        const filteredBooks = getBooks().filter(book => {
             const ratingMatch = book.rating >= selectedRating;
             
             const priceMatch = book.editions.some(edition => edition.price >= minPrice && edition.price <= maxPrice);
@@ -327,7 +327,7 @@ export function setupFilters(renderFunction) {
         languageCheckboxes.forEach(cb => cb.checked = false);
         selectedRating = 0;
         stars.forEach(s => s.classList.replace('text-yellow-400', 'text-gray-300'));
-        renderFunction(booksData);
+        renderFunction(getBooks());
     };
 
     document.getElementById('apply-filters-btn')?.addEventListener('click', applyFilters);

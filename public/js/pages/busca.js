@@ -1,4 +1,4 @@
-import { booksData } from '../data.js';
+import { fetchAllBooks, getBooks } from '../bookService.js';
 import { updateCartUI, initializeCartListeners } from '../cart.js';
 import { 
     initializeGlobalUI,
@@ -101,13 +101,17 @@ function setupFiltersForSearchPage() {
     document.getElementById('clear-filters-btn')?.addEventListener('click', clearFilters);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeGlobalUI();
     initializeCartListeners();
     initializeBookModal();
     updateCartUI();
     setupSidebars();
     setupBackToTopButton();
+
+    //Puxar livros da API
+    await fetchAllBooks();
+    const books = getBooks();
 
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q')?.toLowerCase() || '';

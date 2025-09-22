@@ -1,4 +1,4 @@
-import { booksData } from '../data.js';
+import { fetchAllBooks, getBooks } from '../bookService.js';
 import { updateCartUI, initializeCartListeners } from '../cart.js';
 import { 
     createBookCardHTML, 
@@ -21,14 +21,19 @@ function renderBooksGrid(books) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeGlobalUI();
     initializeCartListeners();
     initializeBookModal();
     updateCartUI();
     setupSidebars();
-    setupFilters(renderBooksGrid);
     setupBackToTopButton();
-    renderBooksGrid(booksData);
     initializeProfileDropdown();
+    
+    //Puxar livros da API
+    await fetchAllBooks();
+    const books = getBooks();
+    setupFilters(renderBooksGrid, books);
+    renderBooksGrid(books);
+
 });

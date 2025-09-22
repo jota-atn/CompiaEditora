@@ -84,9 +84,28 @@ Este projeto adota uma arquitetura organizada para separar as responsabilidades 
 1. Faça um clone do repositório:  
    `git clone https://github.com/jota-atn/CompiaEditora.git`
 
-2. Abra o arquivo `index.html` no seu navegador (duplo clique ou servidor local).  
+2. Confira se tem o [_Node_](https://nodejs.org/en//) instalado:
+```
+node -v
+```
+```
+npm -v
+```
 
-3. Navegue pelas páginas (catalogo, categorias, busca, checkout) para ver as funcionalidades implementadas.  
+3. Instale as dependências do projeto: 
+```
+npm install
+```
+
+4. Popular o BD:
+```
+npm run seed
+```
+
+5. Inicie o projeto:
+```
+npm start
+```
 
 ---
 

@@ -1,5 +1,5 @@
 import { updateCartUI, initializeCartListeners } from '../cart.js';
-import { booksData } from '../data.js';
+import { fetchAllBooks, getBooks } from '../bookService.js';
 import { 
     createBookCardHTML, 
     initializeGlobalUI, 
@@ -8,11 +8,11 @@ import {
     initializeProfileDropdown
 } from '../ui.js';
 
-function renderCatalogCarousel() {
+function renderCatalogCarousel(books) {
     const carouselWrapper = document.getElementById('books-carousel-wrapper');
     if (!carouselWrapper) return;
 
-    carouselWrapper.innerHTML = booksData.map(book => `
+    carouselWrapper.innerHTML = books.map(book => `
         <div class="swiper-slide h-auto pb-10">
             ${createBookCardHTML(book)}
         </div>
@@ -44,8 +44,7 @@ function initializeCarousel() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderCatalogCarousel();    
+document.addEventListener('DOMContentLoaded', async () => {
     initializeCarousel();    
     updateCartUI();
     initializeCartListeners();
@@ -53,4 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeBackToTopButton();
     initializeBookModal();
     initializeProfileDropdown();
+
+    //Puxar livros da API
+    await fetchAllBooks();
+    const books = getBooks();
+    renderCatalogCarousel(books);
 });

@@ -1,4 +1,4 @@
-import { booksData } from './data.js';
+import { getBookById } from './bookService.js';
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -47,7 +47,7 @@ export function updateCartUI() {
 }
 
 export function addToCart(bookId, format) {
-    const bookToAdd = booksData.find(book => book.id === bookId);
+    const bookToAdd = getBookById(bookId);
     if (!bookToAdd) return;
 
     const edition = bookToAdd.editions.find(e => e.format === format);
