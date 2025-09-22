@@ -15,7 +15,10 @@ O objetivo é praticar construção de páginas web estáticas com HTML, CSS e J
 
 - HTML  
 - CSS  
-- JavaScript  
+- JavaScript
+- Node.JS
+- SQLite
+- Express
 
 ---
 
@@ -97,12 +100,7 @@ npm -v
 npm install
 ```
 
-4. Popular o BD:
-```
-npm run seed
-```
-
-5. Inicie o projeto:
+4. Inicie o projeto:
 ```
 npm start
 ```
@@ -114,7 +112,8 @@ npm start
 - Navegação entre páginas estáticas  
 - Busca simples de produtos  
 - Filtros por categoria  
-- Simulação de checkout (sem back-end)  
+- Simulação de checkout (sem back-end)
+- Livros armazenados no Banco de dados
 
 ---
 
