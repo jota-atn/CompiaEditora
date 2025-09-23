@@ -42,6 +42,7 @@ export function createTables(callback) {
                 book_id INTEGER NOT NULL,
                 format TEXT NOT NULL,
                 price REAL NOT NULL,
+                stock INTEGER,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
             )
         `, (err) => {
@@ -67,22 +68,41 @@ export function insertBooks(book, callback) {
         book.rating,
         book.language,
         book.description
-    ], 
-    //Insere os livros formatando pro BD
-    function(err) {
+    ], function (err) {
         if (err) return callback(err);
 
         const bookId = this.lastID; // ID do livro recém inserido
 
-        const queryEdition = `INSERT INTO editions (book_id, format, price) VALUES (?, ?, ?)`;
-        book.editions.forEach(ed => {
-            db.run(queryEdition, [bookId, ed.format, ed.price]);
-        });
-        //insere as edições do livro
+        const queryEdition = `
+            INSERT INTO editions (book_id, format, price, stock)
+            VALUES (?, ?, ?, ?)
+        `;
 
-        callback(null, bookId);
+        // Se não houver edições, retorna logo
+        if (!book.editions || book.editions.length === 0) {
+            return callback(null, bookId);
+        }
+
+        let insertedCount = 0;
+        const editionsToInsert = book.editions.length;
+
+        book.editions.forEach(ed => {
+            db.run(queryEdition, [bookId, ed.format, ed.price, ed.stock], (err) => {
+                if (err) {
+                    console.error("Erro ao inserir edição:", err);
+                
+                }
+
+                insertedCount++;
+                // Só chama o callback quando todas as edições terminarem
+                if (insertedCount === editionsToInsert) {
+                    callback(null, bookId);
+                }
+            });
+        });
     });
 }
+
 
 // Função para buscar TODOS os livros com suas edições
 export function getAllBooks(callback) {
@@ -95,7 +115,7 @@ export function getAllBooks(callback) {
         if (books.length === 0) return callback(null, result);
 
         books.forEach(book => {
-            db.all(`SELECT format, price FROM editions WHERE book_id = ?`, [book.id], (err, editions) => {
+            db.all(`SELECT format, price, stock FROM editions WHERE book_id = ?`, [book.id], (err, editions) => {
                 if (err) return callback(err);
 
                 result.push({ ...book, editions: editions });
@@ -106,9 +126,68 @@ export function getAllBooks(callback) {
     });
 }
 
+ // Deleta um livro do banco de dados.
+//Todas as ediçoes sao deletadas
+export function deleteBook(id, callback) {
+    db.run(`DELETE FROM books WHERE id = ?`, [id], function(err) {
+        if (err) {
+            return callback(err);
+        }
+        // this.changes > 0 significa que uma linha foi realmente deletada
+        callback(null, this.changes > 0); 
+    });
+}
+
+/**
+ * Atualiza um livro e sua primeira edição.
+ * Esta função é feita para funcionar com o seu formulário simples do admin.html,
+ * que edita o livro e uma edição (preço, estoque) ao mesmo tempo.
+ */
+export function updateBook(id, book, callback) {
+    const queryBook = `
+        UPDATE books 
+        SET title = ?, author = ?, coverImage = ?, category = ?, 
+            rating = ?, language = ?, description = ?
+        WHERE id = ?
+    `;
+    
+    db.run(queryBook, [
+        book.title, book.author, book.coverImage, book.category,
+        book.rating, book.language, book.description, id
+    ], function(err) {
+        if (err) {
+            return callback(err);
+        }
+        
+        // Se o livro tiver edições para atualizar
+        if (book.editions && book.editions.length > 0) {
+            const firstEdition = book.editions[0];
+            
+            // Query para atualizar a *primeira* edição encontrada
+            // associada a este livro.
+            const queryEditionUpdate = `
+                UPDATE editions 
+                SET format = ?, price = ?, stock = ?
+                WHERE id = (SELECT id FROM editions WHERE book_id = ? LIMIT 1)
+            `;
+            
+            db.run(queryEditionUpdate, [
+                firstEdition.format, firstEdition.price, firstEdition.stock, id
+            ], (err) => {
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, true);
+            });
+            
+        } else {
+            // Nenhuma edição para atualizar, mas o livro foi atualizado
+            callback(null, true);
+        }
+    });
+}
+
 // Exporta as funções e o objeto db
 export default db;
 
-//TODO: Criar mais funções de consulta
-//TODO: Exportar livros pro frontend
 //TODO: Criar a parte de usuários
