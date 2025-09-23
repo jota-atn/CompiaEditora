@@ -1,5 +1,5 @@
 import { updateCartUI, initializeCartListeners } from '../cart.js';
-import { booksData } from '../data.js';
+import { fetchAllBooks, getBooks } from '../bookService.js';
 import { 
     createBookCardHTML, 
     initializeGlobalUI, 
@@ -8,11 +8,11 @@ import {
     initializeProfileDropdown
 } from '../ui.js';
 
-function renderCatalogCarousel() {
+function renderCatalogCarousel(books) {
     const carouselWrapper = document.getElementById('books-carousel-wrapper');
     if (!carouselWrapper) return;
 
-    carouselWrapper.innerHTML = booksData.map(book => `
+    carouselWrapper.innerHTML = books.map(book => `
         <div class="swiper-slide h-auto pb-10">
             ${createBookCardHTML(book)}
         </div>
@@ -44,8 +44,7 @@ function initializeCarousel() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderCatalogCarousel();    
+document.addEventListener('DOMContentLoaded', async () => {
     initializeCarousel();    
     updateCartUI();
     initializeCartListeners();
@@ -53,4 +52,27 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeBackToTopButton();
     initializeBookModal();
     initializeProfileDropdown();
+
+    //Puxar livros da API
+    await fetchAllBooks();
+    const books = getBooks();
+    renderCatalogCarousel(books);
+
+    function updateImages() {
+        if (books.length >= 3) {
+            const heroBook1 = books[5]; 
+            const heroBook2 = books[6];
+            const heroBook3 = books[7];
+
+            const img1 = document.getElementById('capa1');
+            const img2 = document.getElementById('capa2');
+            const img3 = document.getElementById('capa3');
+
+            if (img1) img1.src = heroBook1.coverImage;
+            if (img2) img2.src = heroBook2.coverImage;
+            if (img3) img3.src = heroBook3.coverImage;
+        }
+    }
+    updateImages();
+
 });

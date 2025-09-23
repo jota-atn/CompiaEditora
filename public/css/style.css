@@ -106,22 +106,6 @@ body.sidebar-collapsed #sidebar {
     overflow: hidden;
 }
 
-#book-modal {
-    opacity: 0;
-}
-
-#book-modal.opacity-100 {
-    opacity: 1;
-}
-
-#book-modal-content {
-    transform: scale(0.95);
-}
-
-#book-modal-content.scale-100 {
-    transform: scale(1);
-}
-
 .format-btn {
     border-color: #d1d5db;
     background-color: transparent;

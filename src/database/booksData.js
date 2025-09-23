@@ -1,6 +1,6 @@
-export const booksData = [
+//Livros para preencher o BD
+const booksData = [
     {
-        id: 1,
         title: 'Deep Learning: Fundamentos e Aplicações',
         author: 'Dr. Ana Silva',
         coverImage: 'https://m.media-amazon.com/images/I/A10G+oKN3LL._UF894,1000_QL80_.jpg',
@@ -14,7 +14,6 @@ export const booksData = [
         ]
     },
     {
-        id: 2,
         title: 'Python Avançado para Ciência de Dados',
         author: 'Prof. Carlos Santos',
         coverImage: 'https://m.media-amazon.com/images/I/91DGHmkQmjL._SL1500_.jpg',
@@ -28,10 +27,9 @@ export const booksData = [
         ]
     },
     {
-        id: 3,
         title: 'Ethical Hacking: Segurança Ofensiva',
         author: 'Dra. Maria Oliveira',
-        coverImage: 'https://m.media-amazon.com/images/I/91LldWCllgS._SL1500_.jpg',
+        coverImage: 'https://m.media-amazon.com/images/I/61+9qPywKsL._UF1000,1000_QL80_.jpg',
         category: 'Cibersegurança',
         rating: 5,
         language: 'Inglês',
@@ -42,7 +40,6 @@ export const booksData = [
         ]
     },
     {
-        id: 4,
         title: 'Blockchain: Tecnologia e Aplicações',
         author: 'Dr. João Pereira',
         coverImage: 'https://m.media-amazon.com/images/I/61NqNm55lhL._SL1000_.jpg',
@@ -57,7 +54,6 @@ export const booksData = [
         ]
     },
     {
-        id: 5,
         title: 'Estruturas de Dados com JavaScript',
         author: 'Fernanda Costa',
         coverImage: 'https://m.media-amazon.com/images/I/71KGa1y8eaL.jpg',
@@ -71,7 +67,6 @@ export const booksData = [
         ]
     },
     {
-        id: 6,
         title: 'Inteligência Artificial: Uma Abordagem Moderna',
         author: 'Russell & Norvig',
         coverImage: 'https://m.media-amazon.com/images/I/81Sc7DUiVmL.jpg',
@@ -85,7 +80,6 @@ export const booksData = [
         ]
     },
     {
-        id: 7,
         title: 'Redes de Computadores e a Internet',
         author: 'Kurose & Ross',
         coverImage: 'https://m.media-amazon.com/images/I/91huSJr6BML._UF894,1000_QL80_.jpg',
@@ -100,7 +94,6 @@ export const booksData = [
         ]
     },
     {
-        id: 8,
         title: 'Arquitetura Limpa: O Guia do Artesão',
         author: 'Robert C. Martin',
         coverImage: 'https://m.media-amazon.com/images/I/815d9tE7jSL.jpg',
@@ -114,7 +107,6 @@ export const booksData = [
         ]
     },
     {
-        id: 9,
         title: 'Livro Teste A - Apenas E-book',
         author: 'Autor Teste',
         coverImage: 'https://m.media-amazon.com/images/I/815d9tE7jSL.jpg',
@@ -127,7 +119,6 @@ export const booksData = [
         ]
     },
     {
-        id: 10,
         title: 'Livro Teste B - Todos os Formatos',
         author: 'Autor Teste',
         coverImage: 'https://m.media-amazon.com/images/I/815d9tE7jSL.jpg',
@@ -142,7 +133,6 @@ export const booksData = [
         ]
     },
     {
-        id: 11,
         title: 'Livro Teste C - Sem Formato Físico',
         author: 'Autor Teste',
         coverImage: 'https://m.media-amazon.com/images/I/815d9tE7jSL.jpg',
@@ -156,3 +146,5 @@ export const booksData = [
         ]
     }
 ];
+//Exportar os livros
+export default booksData;

@@ -1,0 +1,21 @@
+# Arquivo de configuração para ignorar arquivos no Git
+
+# Dependências do Node.js
+# Esta pasta é recriada com o comando 'npm install'
+/node_modules
+
+# Arquivos de Banco de Dados SQLite
+# Cada membro da equipe deve ter seu próprio banco de dados local para desenvolvimento
+*.db
+*.db-journal
+
+# Arquivos de ambiente (para guardar senhas e chaves de API no futuro)
+.env
+
+# Logs de erro e debug
+*.log
+npm-debug.log*
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db

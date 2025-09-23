@@ -1,4 +1,4 @@
-import { booksData } from '../data.js';
+import { fetchAllBooks, getBooks } from '../bookService.js';
 import { updateCartUI, initializeCartListeners } from '../cart.js';
 import { 
     createBookCardHTML, 
@@ -109,14 +109,18 @@ function renderPageLayout(booksToRender) {
     initializeCarousels();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeGlobalUI();
     initializeBookModal();
     initializeCartListeners();
     updateCartUI();
     setupSidebars();
-    setupFilters(renderPageLayout);
     setupBackToTopButton();
-    renderPageLayout(booksData);
     initializeProfileDropdown();
+
+    //Puxar livros da API
+    await fetchAllBooks();
+    const books = getBooks();
+    setupFilters(renderPageLayout);
+    renderPageLayout(books);
 });
