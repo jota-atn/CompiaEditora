@@ -1,151 +1,196 @@
-import { booksData } from '../data.js';
+// admin.js (VERSÃO DE TESTE para o DELETE)
 
-let books = [...booksData];
+let allBooks = [];
+let currentEditingId = null;
 
-const addBookBtn = document.getElementById('add-book-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const bookModal = document.getElementById('book-modal');
-const modalTitle = document.getElementById('modal-title');
-const bookForm = document.getElementById('book-form');
-const bookTableBody = document.getElementById('book-table-body');
-const editIdInput = document.getElementById('edit-index');
+document.addEventListener('DOMContentLoaded', () => {
 
-function formatPriceForDisplay(book) {
-    if (!book.editions || book.editions.length === 0) {
-        return '<span class="text-red-500">Indisponível</span>';
-    }
-    const lowestPrice = Math.min(...book.editions.map(e => e.price));
-    return `A partir de R$ ${lowestPrice.toFixed(2).replace('.', ',')}`;
-}
+    const addBookBtn = document.getElementById('add-book-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const bookModal = document.getElementById('book-modal');
+    const bookForm = document.getElementById('book-form');
+    const bookTableBody = document.querySelector('tbody');
+    const modalTitle = document.getElementById('modal-title');
 
-function displayBooks() {
-    bookTableBody.innerHTML = '';
-
-    books.forEach(book => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="p-4"><img src="${book.coverImage}" alt="Capa" class="w-12 h-16 object-cover rounded-md"></td>
-            <td class="p-4 text-gray-800 font-medium">${book.title}</td>
-            <td class="p-4 text-gray-600">${book.category}</td>
-            <td class="p-4 text-gray-600">${formatPriceForDisplay(book)}</td>
-            <td class="p-4 text-gray-500 font-medium">N/D</td>
-            <td class="p-4 space-x-2">
-                <button class="text-blue-600 hover:underline edit-btn" data-id="${book.id}">Editar</button>
-                <button class="text-red-600 hover:underline delete-btn" data-id="${book.id}">Excluir</button>
-            </td>
-        `;
-        bookTableBody.appendChild(row);
-    });
-}
-
-function fillFormForEdit(bookId) {
-    const book = books.find(b => b.id === bookId);
-    if (!book) return;
-
-    bookForm.title.value = book.title;
-    bookForm.author.value = book.author;
-    bookForm.price.value = book.editions[0]?.price.toFixed(2).replace('.', ',') || '0,00';
-    bookForm.stock.value = 0;
-    bookForm.category.value = book.category;
-    bookForm.description.value = book.description;
-    bookForm.imageUrl.value = book.coverImage;
-    
-    editIdInput.value = book.id;
-    modalTitle.textContent = 'Editar Livro';
-}
-
-function handleOpenAddModal() {
-    bookForm.reset();
-    
-    editIdInput.value = '';
-    
-    modalTitle.textContent = 'Adicionar Novo Livro';
-
-    bookModal.classList.remove('hidden');
-    bookModal.classList.add('flex');
-    bookModal.classList.add('opacity-100'); 
-}
-
-function handleCloseModal() {
-    bookModal.classList.add('hidden');
-    bookModal.classList.remove('flex');
-    bookModal.classList.remove('opacity-100'); 
-}
-
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    const editingId = parseInt(editIdInput.value, 10);
-    const priceValue = parseFloat(bookForm.price.value.replace('R$', '').replace(',', '.')) || 0;
-
-    if (editingId) {
-        const bookToUpdate = books.find(b => b.id === editingId);
-        if (bookToUpdate) {
-            Object.assign(bookToUpdate, {
-                title: bookForm.title.value,
-                author: bookForm.author.value,
-                category: bookForm.category.value,
-                description: bookForm.description.value,
-                coverImage: bookForm.imageUrl.value,
-            });
-            if (bookToUpdate.editions.length > 0) {
-                bookToUpdate.editions[0].price = priceValue;
-            } else {
-                bookToUpdate.editions.push({ format: 'Capa Comum', price: priceValue });
+    // --- 1. CARREGAMENTO ---
+    async function loadBooks() {
+        try {
+            const response = await fetch('/api/books'); 
+            if (!response.ok) {
+                throw new Error(`Falha ao carregar livros: ${response.statusText}`);
             }
+            const books = await response.json();
+            allBooks = books; 
+            renderBookTable(books);
+        } catch (error) {
+            console.error('Erro detalhado ao carregar livros:', error);
+            bookTableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Erro ao carregar livros. Tente recarregar a página.</td></tr>`;
         }
-    } else {
-        const newId = books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1;
-        const newBook = {
-            id: newId,
-            title: bookForm.title.value,
-            author: bookForm.author.value,
-            category: bookForm.category.value,
-            description: bookForm.description.value,
-            coverImage: bookForm.imageUrl.value,
-            rating: 0,
-            language: 'Português',
-            editions: [{ format: 'Capa Comum', price: priceValue }]
-        };
-        books.push(newBook);
     }
 
-    displayBooks();
-    handleCloseModal();
-}
+    // --- RENDERIZAÇÃO ---
+    function renderBookTable(books) {
+        bookTableBody.innerHTML = ''; 
+        if (!books || books.length === 0) {
+            bookTableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">Nenhum livro cadastrado.</td></tr>`;
+            return;
+        }
+        books.forEach(book => {
+            const hasEditions = Array.isArray(book.editions) && book.editions.length > 0;
+            const firstEdition = hasEditions ? book.editions[0] : {}; 
+            const price = firstEdition.price ? `R$ ${firstEdition.price.toFixed(2)}` : 'N/A';
+            const stock = firstEdition.stock ?? 'Infinito'; 
+            const row = `
+                <tr>
+                    <td class="p-4"><img src="${book.coverImage}" alt="Capa" class="w-12 h-16 object-cover rounded-md"></td>
+                    <td class="p-4 text-gray-800 font-medium">${book.title}</td>
+                    <td class="p-4 text-gray-600">${book.category}</td>
+                    <td class="p-4 text-gray-600">${price}</td>
+                    <td class="p-4 ${stock === 'Infinito' ? 'text-gray-600' : 'text-green-600 font-semibold'}">${stock}</td>
+                    <td class="p-4 space-x-2">
+                        <button class="text-blue-600 hover:underline btn-editar" data-id="${book.id}">Editar</button>
+                        <button class="text-red-600 hover:underline btn-excluir" data-id="${book.id}">Excluir</button>
+                    </td>
+                </tr>
+            `;
+            bookTableBody.innerHTML += row;
+        });
+    }
 
-function handleTableActions(event) {
-    const target = event.target;
-    const bookId = parseInt(target.dataset.id, 10);
-
-    if (target.classList.contains('edit-btn')) {
-        fillFormForEdit(bookId);
+    // --- LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
+    addBookBtn.addEventListener('click', () => {
+        currentEditingId = null; 
+        modalTitle.textContent = 'Adicionar Novo Livro'; 
+        bookForm.reset(); 
         bookModal.classList.remove('hidden');
-        bookModal.classList.add('flex');
-        bookModal.classList.add('opacity-100');
-    }
+    });
 
-    if (target.classList.contains('delete-btn')) {
-        const bookToDelete = books.find(b => b.id === bookId);
-        if (confirm(`Tem certeza que deseja excluir o livro "${bookToDelete?.title}"?`)) {
-            books = books.filter(b => b.id !== bookId);
-            displayBooks();
+    closeModalBtn.addEventListener('click', () => {
+        bookModal.classList.add('hidden');
+    });
+
+    bookForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const price = parseFloat(document.getElementById('price').value.replace('R$ ', '').replace(',', '.'));
+        const stockInput = document.getElementById('stock');
+        const category = document.getElementById('category').value;
+        const description = document.getElementById('description').value;
+        const coverImage = document.getElementById('coverImage').value;
+        const stock = stockInput.value === '' ? null : parseInt(stockInput.value);
+
+        const bookData = {
+            title, coverImage, category, description,
+            author: "Admin", rating: 0, language: "Português",
+            editions: [{ format: "Capa Comum", price, stock }]
+        };
+
+        try {
+            let response;
+            let url;
+            let method;
+
+            if (currentEditingId) {
+                url = `/api/books/${currentEditingId}`;
+                method = 'PUT';
+                const originalBook = allBooks.find(b => b.id === Number(currentEditingId));
+                const updatedBook = {
+                    ...originalBook, ...bookData,
+                    editions: [{
+                        ...(originalBook.editions.length ? originalBook.editions[0] : {}),
+                        price: price, stock: stock
+                    }]
+                };
+                response = await fetch(url, {
+                    method: method, headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedBook)
+                });
+            } else {
+                url = '/api/books';
+                method = 'POST';
+                response = await fetch(url, {
+                    method: method, headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookData)
+                });
+            }
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `Falha ao ${currentEditingId ? 'atualizar' : 'salvar'} o livro`);
+            }
+
+            alert(`Livro ${currentEditingId ? 'atualizado' : 'salvo'} com sucesso!`);
+            bookForm.reset();
+            bookModal.classList.add('hidden');
+            currentEditingId = null; 
+            loadBooks(); 
+        } catch (error) {
+            console.error(`Erro ao ${currentEditingId ? 'atualizar' : 'salvar'}:`, error);
+            alert(`Erro: ${error.message}`);
+        }
+    });
+
+    // --- 3. LÓGICA DE CLIQUE DA TABELA (EDITAR E EXCLUIR) ---
+
+    // Função para deletar
+    async function handleDelete(id) {
+    
+        try {
+            const response = await fetch(`/api/books/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                console.error('PASSO E (ERRO): API retornou um erro:', error); 
+                throw new Error(error.message || 'Falha ao deletar');
+            }
+            alert('Livro deletado com sucesso!');
+            loadBooks(); 
+        } catch (error) {
+            alert(`Não foi possível deletar o livro: ${error.message}`);
         }
     }
-}
 
-function initializeApp() {
-    addBookBtn.addEventListener('click', handleOpenAddModal);
-    closeModalBtn.addEventListener('click', handleCloseModal);
-    bookModal.addEventListener('click', (e) => {
-        if (e.target === bookModal) handleCloseModal();
+    // Função para editar
+    function handleEdit(id) {
+        console.log('PASSO A: Função handleEdit iniciada para o ID:', id);
+        const bookToEdit = allBooks.find(b => b.id === Number(id));
+        if (!bookToEdit) {
+            alert('Livro não encontrado!');
+            return;
+        }
+        currentEditingId = id; 
+        modalTitle.textContent = 'Editar Livro';
+        document.getElementById('title').value = bookToEdit.title;
+        document.getElementById('category').value = bookToEdit.category;
+        document.getElementById('description').value = bookToEdit.description;
+        document.getElementById('coverImage').value = bookToEdit.coverImage;
+        if (bookToEdit.editions && bookToEdit.editions.length > 0) {
+            const edition = bookToEdit.editions[0];
+            document.getElementById('price').value = edition.price.toFixed(2).replace('.', ',');
+            document.getElementById('stock').value = edition.stock ?? 0;
+        }
+        bookModal.classList.remove('hidden');
+    }
+
+    // "Escutador" principal para a TABELA (COM LOGS DE TESTE)
+    bookTableBody.addEventListener('click', (e) => {
+        const target = e.target; 
+        
+        if (target.classList.contains('btn-excluir')) {
+            console.log('CLIQUE: Botão EXCLUIR clicado. ID:', target.dataset.id); 
+            const id = target.dataset.id; 
+            handleDelete(id);
+        }
+        
+        if (target.classList.contains('btn-editar')) {
+            console.log('CLIQUE: Botão EDITAR clicado. ID:', target.dataset.id); 
+            const id = target.dataset.id; 
+            handleEdit(id);
+        }
     });
-    bookForm.addEventListener('submit', handleFormSubmit);
-    bookTableBody.addEventListener('click', handleTableActions);
 
-    displayBooks();
-}
-
-document.addEventListener('DOMContentLoaded', () => {  
-    initializeApp();
+    // --- 4. EXECUÇÃO INICIAL ---
+    loadBooks();
 });

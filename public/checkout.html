@@ -9,11 +9,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <link href="css/style.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-200">
 
     <header class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between w-full">
+        <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
                 <a href="#home" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
@@ -31,9 +30,9 @@
                     <a href="#about" class="nav-link">Sobre</a> 
                 </nav>
                 
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <div class="relative hidden sm:block">
-                        <input id="search-input" type="text" placeholder="Buscar..." class="w-32 lg:w-48 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -50,35 +49,27 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </button>
-                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200 transition-opacity duration-300 ease-in-out opacity-0 invisible">
-                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">Meus Dados</a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
+                        <div id="profile-dropdown" 
+                            class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
+                                    transition-opacity duration-300 ease-in-out opacity-0 invisible">
+                            
+                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
+                                Meus Dados
+                            </a>
+                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
+                                Sair
+                            </a>
                         </div>
                     </div>
-                    <div class="md:hidden">
-                        <button id="hamburger-btn" class="p-2 text-gray-700 hover:text-blue-800">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
-            </div>
-            <div id="mobile-menu" class="hidden md:hidden mt-4">
-                <nav class="flex flex-col space-y-2">
-                    <a href="./index.html" class="nav-link">Início</a>
-                    <a href="./categorias.html" class="nav-link">Categorias</a> 
-                    <a href="./catalogo.html" class="nav-link">Catálogo</a>
-                    <a href="#about" class="nav-link">Sobre</a> 
-                </nav>
             </div>
         </div>
     </header>
 
     <main class="container scroll-mt-20 mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             
-            <div class="md:col-span-2">
+            <div class="lg:col-span-2">
                 <section class="mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Itens do seu Pedido</h2>
                     <div class="relative bg-white p-6 rounded-lg shadow-md">
@@ -93,20 +84,20 @@
 
                 <section class="mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Endereço de Entrega</h2>
-                    <div class="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input type="text" placeholder="CEP" class="sm:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Rua / Avenida" class="sm:col-span-2 border p-2 rounded-md">
-                        <input type="text" placeholder="Número" class="sm:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Complemento (Opcional)" class="sm:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Bairro" class="sm:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Cidade" class="sm:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Estado" class="sm:col-span-1 border p-2 rounded-md">
+                    <div class="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="CEP" class="md:col-span-1 border p-2 rounded-md">
+                        <input type="text" placeholder="Rua / Avenida" class="md:col-span-2 border p-2 rounded-md">
+                        <input type="text" placeholder="Número" class="md:col-span-1 border p-2 rounded-md">
+                        <input type="text" placeholder="Complemento (Opcional)" class="md:col-span-1 border p-2 rounded-md">
+                        <input type="text" placeholder="Bairro" class="md:col-span-1 border p-2 rounded-md">
+                        <input type="text" placeholder="Cidade" class="md:col-span-1 border p-2 rounded-md">
+                        <input type="text" placeholder="Estado" class="md:col-span-1 border p-2 rounded-md">
                     </div>
                 </section>
 
                 <section>
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Forma de Pagamento</h2>
-                    <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
                         <div>
                             <label for="card-number" class="block text-sm font-medium text-gray-700">Número do Cartão</label>
                             <input type="text" id="card-number" placeholder="0000 0000 0000 0000" inputmode="numeric" autocomplete="cc-number" class="w-full mt-1 p-2 border rounded-md">
@@ -115,12 +106,12 @@
                             <label for="card-name" class="block text-sm font-medium text-gray-700">Nome no Cartão</label>
                             <input type="text" id="card-name" placeholder="Nome Completo" autocomplete="cc-name" class="w-full mt-1 p-2 border rounded-md">
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <div class="w-full sm:w-1/2">
+                        <div class="flex gap-4">
+                            <div class="w-1/2">
                                 <label for="card-expiry" class="block text-sm font-medium text-gray-700">Validade</label>
                                 <input type="text" id="card-expiry" placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp" class="w-full mt-1 p-2 border rounded-md">
                             </div>
-                            <div class="w-full sm:w-1/2">
+                            <div class="w-1/2">
                                 <label for="card-cvc" class="block text-sm font-medium text-gray-700">CVC</label>
                                 <input type="text" id="card-cvc" placeholder="123" inputmode="numeric" autocomplete="cc-csc" class="w-full mt-1 p-2 border rounded-md">
                             </div>
@@ -129,7 +120,7 @@
                 </section>
             </div>
 
-            <aside class="md:col-span-1">
+            <aside class="lg:col-span-1">
                 <div class="bg-white p-6 rounded-lg shadow-md sticky top-28">
                     <h3 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4">Resumo do Pedido</h3>
                     <div class="space-y-3 text-gray-600">
@@ -170,32 +161,5 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
     <script type="module" src="js/pages/checkout.js"></script>
-    
-    <script>
-        // Script para menu hamburger e dropdown de perfil
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburgerBtn = document.getElementById('hamburger-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const profileBtn = document.getElementById('profile-btn');
-            const profileDropdown = document.getElementById('profile-dropdown');
-
-            hamburgerBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            profileBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                profileDropdown.classList.toggle('invisible');
-                profileDropdown.classList.toggle('opacity-0');
-            });
-            
-            document.addEventListener('click', () => {
-                if (!profileDropdown.classList.contains('invisible')) {
-                    profileDropdown.classList.add('invisible');
-                    profileDropdown.classList.add('opacity-0');
-                }
-            });
-        });
-    </script>
 </body>
 </html>
