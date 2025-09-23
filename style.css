@@ -274,8 +274,7 @@ body.sidebar-collapsed #sidebar {
 
 @media (max-width: 767px) {
     .page-container {
-        grid-template-columns: 1fr;
-        grid-template-areas: "main";
+        display: block
     }
 
     #sidebar {
