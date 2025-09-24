@@ -11,8 +11,9 @@
 
 <body class="bg-gray-100">
     <header class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
-                <a href="#home" class="flex items-center space-x-3">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between w-full">
+                <a href="./index.html" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
                     </div>
@@ -26,12 +27,12 @@
                     <a href="./index.html" class="nav-link">Início</a>
                     <a href="./categorias.html" class="nav-link">Categorias</a> 
                     <a href="#main-content" class="nav-link">Catálogo</a>
-                    <a href="#about" class="nav-link">Sobre</a> 
+                    <a href="./index.html#about" class="nav-link">Sobre</a> 
                 </nav>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <div class="relative">
-                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 w-28 sm:w-40 lg:w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -48,24 +49,32 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </button>
-                        <div id="profile-dropdown" 
-                            class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
-                                    transition-opacity duration-300 ease-in-out opacity-0 invisible">
-                            
-                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
-                                Meus Dados
-                            </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
-                            </a>
+                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200 transition-opacity duration-300 ease-in-out opacity-0 invisible">
+                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">Meus Dados</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
                         </div>
                     </div>
+                     <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-700 hover:text-blue-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
                 </div>
+            </div>
+             <div id="mobile-menu" class="hidden md:hidden mt-4">
+                <nav class="flex flex-col space-y-2">
+                    <a href="./index.html" class="nav-link-mobile">Início</a>
+                    <a href="./categorias.html" class="nav-link-mobile">Categorias</a>
+                    <a href="#main-content" class="nav-link-mobile">Catálogo</a>
+                    <a href="./index.html#about" class="nav-link-mobile">Sobre</a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <button id="sidebar-toggle" class="fixed z-50 top-24 left-4 md:hidden"></button>
+    <button id="sidebar-toggle" class="fixed z-40 top-24 left-4 p-2 bg-white rounded-md shadow-lg md:hidden">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L12 14.414V19a1 1 0 01-1.447.894L7 18.25V14.414L3.293 6.707A1 1 0 013 6V4z"></path></svg>
+    </button>
 
     <button id="desktop-sidebar-toggle" class="hidden md:block fixed z-50 top-24 bg-white text-gray-700 rounded-r-lg p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,10 +140,14 @@
             </div>
         </aside>
 
+        <button id="external-sidebar-close-btn" class="hidden fixed bottom-4 right-8 p-2 bg-white rounded-full shadow-lg z-[61] md:hidden">
+            <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
         <main id="main-content" class="scroll-mt-20 gradient-bg p-4 sm:p-8">
             <div class="container mx-auto px-4 pt-10">
-                <h1 class="text-5xl md:text-6xl font-bold text-left text-gray-200 mb-12">Nosso catálogo de Livros</h1>         
-                <div id="books-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+                <h1 class="text-5xl md:text-6xl font-bold text-left text-gray-200 mb-12">Nosso catálogo de Livros</h1>
+                <div id="books-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
             </div>
         </main>
     </div>
@@ -170,7 +183,7 @@
                 </button>
             </div>
         </div>
-    </div>    
+    </div>     
 
     <div id="book-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[60] flex items-center justify-center p-4 transition-opacity duration-300">
         <div id="book-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-4xl w-full mx-auto relative transform scale-95 transition-transform duration-300">
@@ -204,13 +217,20 @@
         </div>
     </div>
 
-    <button id="back-to-top-btn" 
-        class="fixed bottom-8 right-8 z-50 p-3 bg-blue-700 text-white rounded-full shadow-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 opacity-0 transform translate-y-4 invisible">
+    <button id="back-to-top-btn" class="fixed bottom-8 right-8 z-50 p-3 bg-blue-700 text-white rounded-full shadow-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 opacity-0 transform translate-y-4 invisible">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
     </button>
 
     <script type="module" src="js/pages/catalog.js"></script>
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

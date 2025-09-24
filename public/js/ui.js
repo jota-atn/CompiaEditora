@@ -235,31 +235,46 @@ export function initializeBookModal() {
 
 export function setupSidebars() {
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
     const overlay = document.getElementById('sidebar-overlay');
-
-    if (sidebar && sidebarToggle && overlay) {
-        const toggleSidebar = () => {
-            const isHidden = sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden', isHidden);
-            sidebarToggle.innerHTML = sidebar.classList.contains('-translate-x-full') 
-                ? sidebarToggle.dataset.openIcon 
-                : sidebarToggle.dataset.closeIcon;
-        };
-        sidebarToggle.dataset.openIcon = sidebarToggle.innerHTML;
-        sidebarToggle.dataset.closeIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-
-        sidebarToggle.addEventListener('click', e => {
-            e.stopPropagation();
-            toggleSidebar();
+    const mobileToggle = document.getElementById('sidebar-toggle');
+    const desktopToggleBtn = document.getElementById('desktop-sidebar-toggle');
+    
+    if (desktopToggleBtn) {
+        desktopToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
         });
-        overlay.addEventListener('click', toggleSidebar);
     }
 
-    const desktopToggleBtn = document.getElementById('desktop-sidebar-toggle');
-    desktopToggleBtn?.addEventListener('click', () => {
-        document.body.classList.toggle('sidebar-collapsed');
-    });
+    if (sidebar && mobileToggle && overlay) {
+        const externalCloseBtn = document.getElementById('external-sidebar-close-btn');
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+        const openMobileSidebar = () => {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            externalCloseBtn?.classList.remove('hidden');
+        };
+
+        const closeMobileSidebar = () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+            externalCloseBtn?.classList.add('hidden');
+        };
+
+        mobileToggle.addEventListener('click', () => {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                openMobileSidebar();
+            } else {
+                closeMobileSidebar();
+            }
+        });
+
+        overlay.addEventListener('click', closeMobileSidebar);
+        externalCloseBtn?.addEventListener('click', closeMobileSidebar);
+        applyFiltersBtn?.addEventListener('click', closeMobileSidebar);
+        clearFiltersBtn?.addEventListener('click', closeMobileSidebar);
+    }
 }
 
 export function setupBackToTopButton() {
@@ -272,7 +287,7 @@ export function setupBackToTopButton() {
     backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-export function setupFilters(renderFunction, books) {
+export function setupFilters(renderFunction) {
     const minPriceEl = document.getElementById('min-price');
     const maxPriceEl = document.getElementById('max-price');
     const authorInputEl = document.getElementById('author-input');
@@ -299,24 +314,20 @@ export function setupFilters(renderFunction, books) {
         const getCheckedValues = (checkboxes) => Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
         const selectedFormats = getCheckedValues(formatCheckboxes);
         const selectedLanguages = getCheckedValues(languageCheckboxes);
-
         const authorQuery = authorInputEl.value.trim().toLowerCase();
 
         const filteredBooks = getBooks().filter(book => {
             const ratingMatch = book.rating >= selectedRating;
-            
             const priceMatch = book.editions.some(edition => edition.price >= minPrice && edition.price <= maxPrice);
-            
             const formatMatch = selectedFormats.length === 0 || book.editions.some(edition => selectedFormats.includes(edition.format));
-            
             const languageMatch = selectedLanguages.length === 0 || selectedLanguages.includes(book.language);
-
             const authorMatch = authorQuery === '' || book.author.trim().toLowerCase().includes(authorQuery);
-
             return ratingMatch && priceMatch && formatMatch && languageMatch && authorMatch;
         });
         
         renderFunction(filteredBooks);
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const clearFilters = () => {
@@ -327,7 +338,10 @@ export function setupFilters(renderFunction, books) {
         languageCheckboxes.forEach(cb => cb.checked = false);
         selectedRating = 0;
         stars.forEach(s => s.classList.replace('text-yellow-400', 'text-gray-300'));
+        
         renderFunction(getBooks());
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     document.getElementById('apply-filters-btn')?.addEventListener('click', applyFilters);
@@ -372,6 +386,9 @@ export function createCarouselSectionHTML(title, books, sectionId, noResultsMess
 export function initializeCarousels() {
     if (typeof Swiper === 'undefined') return;
     
+    swiperInstances.forEach(swiper => swiper.destroy(true, true));
+    swiperInstances = [];
+
     document.querySelectorAll('.category-swiper').forEach(container => {
         const sectionId = container.id.replace('swiper-', '');
         new Swiper(container, {
@@ -386,6 +403,7 @@ export function initializeCarousels() {
                 1024: { slidesPerView: 4, spaceBetween: 30 },
             }
         });
+        swiperInstances.push(swiper);
     });
 }
 

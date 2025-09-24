@@ -13,7 +13,8 @@
 
 <body class="bg-gray-50">
     <header class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between w-full">
                 <a href="#home" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
@@ -23,21 +24,23 @@
                         <p class="text-sm text-gray-600">Editora</p>
                     </div>
                 </a>
-                
+
                 <nav class="hidden md:flex space-x-8">
                     <a href="#home" class="nav-link">Início</a>
-                    <a href="./categorias.html" class="nav-link">Categorias</a> 
+                    <a href="./categorias.html" class="nav-link">Categorias</a>
                     <a href="./catalogo.html" class="nav-link">Catálogo</a>
-                    <a href="#about" class="nav-link">Sobre</a> 
+                    <a href="#about" class="nav-link">Sobre</a>
                 </nav>
-                
-                <div class="flex items-center space-x-4">
+
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    
                     <div class="relative">
-                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input id="search-input" type="text" placeholder="Buscar..." class="pl-10 pr-4 py-2 w-28 sm:w-40 lg:w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
+
                     <button id="cart-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
@@ -50,86 +53,65 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </button>
-                        <div id="profile-dropdown" 
-                            class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
-                                    transition-opacity duration-300 ease-in-out opacity-0 invisible">
-                            
-                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
-                                Meus Dados
-                            </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
-                            </a>
+                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200 transition-opacity duration-300 ease-in-out opacity-0 invisible">
+                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">Meus Dados</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
                         </div>
                     </div>
+
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-700 hover:text-blue-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
                 </div>
+            </div>
+
+            <div id="mobile-menu" class="hidden md:hidden mt-4">
+                <nav class="flex flex-col space-y-2">
+                    <a href="#home" class="nav-link-mobile">Início</a>
+                    <a href="./categorias.html" class="nav-link-mobile">Categorias</a>
+                    <a href="./catalogo.html" class="nav-link-mobile">Catálogo</a>
+                    <a href="#about" class="nav-link-mobile">Sobre</a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <section id="home" class="gradient-bg tech-pattern flex text-white">
+    <section id="home" class="gradient-bg tech-pattern min-h-screen flex items-center py-16 lg:py-0">
         <div class="container mx-auto px-4">
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 mb-10 lg:mb-0">
-                    <h2 class="text-5xl font-bold mb-6 leading-tight">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <h2 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight text-white">
                         Livros de <span class="text-cyan-400">Tecnologia</span><br>
                         para o Futuro
                     </h2>
-                    <p class="text-xl mb-8 text-gray-200">
-                        Conteúdo de alta qualidade que une rigor técnico a uma linguagem acessível. 
-                        A ponte entre o mundo acadêmico e o mercado de trabalho.
+                    <p class="text-lg sm:text-xl mb-8 text-gray-200 max-w-xl mx-auto lg:mx-0">
+                        Conteúdo de alta qualidade que une rigor técnico a uma linguagem acessível. A ponte entre o mundo acadêmico e o mercado de trabalho.
                     </p>
-
-                    <div class="flex flex-col items-start gap-4">
-                        <a href="#catalog" 
-                            class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg">
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="#catalog" class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg">
                             Explorar Catálogo
                         </a>
-                        <a href="#categories" 
-                            class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg">
-                            Explorar Categorias
+                        <a href="#categories" class="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg">
+                            Ver Categorias
                         </a>
                     </div>
                 </div>
-                <div class="lg:w-1/2 flex justify-center">
-                    <div class="min-h-screen flex justify-center items-center p-8">
-
-                    <div class="relative w-[34rem] h-96 flex items-center">
+                <div class="lg:w-1/2 w-full flex justify-center items-center mt-10 lg:mt-0">
+                    <div class="relative w-full max-w-sm h-80 sm:h-96 flex items-center justify-center">
                         
-                        <div 
-                        class="absolute h-80 rounded-lg left-0 z-10 
-                                transform -rotate-12 origin-bottom-left 
-                                transition-all duration-300 ease-in-out 
-                                hover:z-40 hover:rotate-0 hover:scale-110 hover:translate-y-8"
-                        >
-                        <img id="capa1" src="https://m.media-amazon.com/images/I/91LldWCllgS.jpg" 
-                             alt="Capa do livro 1" 
-                             class="w-full h-full object-cover rounded-md">
+                        <div class="absolute h-64 sm:h-80 rounded-lg left-0 z-10 transform -rotate-12 origin-bottom-left transition-all duration-300 ease-in-out hover:z-40 hover:rotate-0 hover:scale-110">
+                            <img id="capa1" src="https://m.media-amazon.com/images/I/91LldWCllgS.jpg" alt="Capa do livro 1" class="w-full h-full object-cover rounded-md shadow-lg">
                         </div>
 
-                        <div 
-                        class="absolute h-80 rounded-lg left-1/2 -translate-x-1/2 z-20 
-                                transform rotate-3 origin-bottom 
-                                transition-all duration-300 ease-in-out 
-                                hover:z-40 hover:rotate-0 hover:scale-110 hover:translate-y-8"
-                        >
-                        <img id="capa2" src="https://m.media-amazon.com/images/I/91DGHmkQmjL.jpg" 
-                             alt="Capa do livro 2" 
-                             class="w-full h-full object-cover rounded-md">
+                        <div class="absolute h-64 sm:h-80 rounded-lg z-20 transform rotate-3 origin-bottom transition-all duration-300 ease-in-out hover:z-40 hover:rotate-0 hover:scale-110">
+                            <img id="capa2" src="https://m.media-amazon.com/images/I/91DGHmkQmjL.jpg" alt="Capa do livro 2" class="w-full h-full object-cover rounded-md shadow-lg">
                         </div>
 
-                        <div 
-                        class="absolute h-80 rounded-lg right-0 z-30 
-                                transform rotate-12 origin-bottom-right 
-                                transition-all duration-300 ease-in-out 
-                                hover:z-40 hover:rotate-0 hover:scale-110 hover:translate-y-8"
-                        >
-                        <img id="capa3" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ92UrV8yzVFbFrAfbhfrLWo1C5WqIBPncLFg&s" 
-                             alt="Capa do livro 3" 
-                             class="w-full h-full object-cover rounded-md">
+                        <div class="absolute h-64 sm:h-80 rounded-lg right-0 z-30 transform rotate-12 origin-bottom-right transition-all duration-300 ease-in-out hover:z-40 hover:rotate-0 hover:scale-110">
+                            <img id="capa3" src="https://encrypted-tbn0.gstatic.com/images/q=bn:ANd9GcQ92UrV8yzVFbFrAfbhfrLWo1C5WqIBPncLFg&s" alt="Capa do livro 3" class="w-full h-full object-cover rounded-md shadow-lg">
                         </div>
-
-                    </div>
 
                     </div>
                 </div>
@@ -137,36 +119,31 @@
         </div>
     </section>
 
-    <section id="categories" class="scroll-mt-20 py-16 bg-blue-200"> <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Categorias em Destaque</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl hover:shadow-lg transition-shadow cursor-pointer">
+    <section id="categories" class="scroll-mt-20 py-16 bg-blue-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">Categorias em Destaque</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-blue-200 p-8 rounded-xl transition-shadow cursor-pointer">
                     <div class="w-16 h-16 bg-blue-800 rounded-lg flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-4">Inteligência Artificial</h3>
                     <p class="text-gray-600 mb-4">Machine Learning, Deep Learning, Redes Neurais e muito mais.</p>
                     <span class="text-blue-800 font-semibold">24 livros disponíveis</span>
                 </div>
                 
-                <div class="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="bg-green-200 p-8 rounded-xl transition-shadow cursor-pointer">
                     <div class="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-4">Programação</h3>
                     <p class="text-gray-600 mb-4">Python, JavaScript, Java, C++ e linguagens modernas.</p>
                     <span class="text-green-600 font-semibold">18 livros disponíveis</span>
                 </div>
                 
-                <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-xl hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="bg-orange-200 p-8 rounded-xl transition-shadow cursor-pointer">
                     <div class="w-16 h-16 bg-orange-500 rounded-lg flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-4">Cibersegurança</h3>
                     <p class="text-gray-600 mb-4">Segurança digital, ethical hacking e proteção de dados.</p>
@@ -176,16 +153,15 @@
         </div>
     </section>
 
-    <section id="catalog" class="scroll-mt-20 py-16 bg-blue-250">
+    <section id="catalog" class="scroll-mt-20 py-16 bg-white">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
-                <h2 class="text-4xl font-bold text-gray-800">Nossos Livros</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Nossos Livros</h2>
                 <a href="./catalogo.html" class="text-blue-800 font-semibold hover:underline">
                     Ver todos os livros &rarr;
                 </a>
             </div>
-
-            <div class="relative px-12">
+            <div class="relative px-4 sm:px-12">
                 <div class="swiper books-carousel">
                     <div class="swiper-wrapper" id="books-carousel-wrapper"></div>
                 </div>
@@ -195,10 +171,11 @@
         </div>
     </section>
 
-    <section id="about" class="scroll-mt-20 py-16 bg-blue-200"> <div class="container mx-auto px-4">
+    <section id="about" class="scroll-mt-20 py-16 bg-blue-100">
+        <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl font-bold text-gray-800 mb-8">Sobre a COMPIA Editora</h2>
-                <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Sobre a COMPIA Editora</h2>
+                <p class="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
                     Somos uma editora especializada em livros de alta qualidade sobre Computação e Inteligência Artificial. 
                     Nossa missão é criar uma ponte entre o mundo acadêmico e o mercado de trabalho, oferecendo conteúdo 
                     que une rigor técnico a uma linguagem acessível.
@@ -286,5 +263,13 @@
     </button>
     
     <script type="module" src="js/pages/home.js"></script>
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>

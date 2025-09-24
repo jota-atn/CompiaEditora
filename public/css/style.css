@@ -256,10 +256,19 @@ body.sidebar-collapsed #sidebar {
     line-height: 1;
 }
 
+.swiper-button-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none; 
+}
+
+.swiper-slide {
+    height: auto;
+}
+
 @media (max-width: 767px) {
     .page-container {
-        grid-template-columns: 1fr;
-        grid-template-areas: "main";
+        display: block;
     }
 
     #sidebar {

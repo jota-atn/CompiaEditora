@@ -1,18 +1,92 @@
 import { fetchAllBooks, getBooks } from '../bookService.js';
 import { updateCartUI, initializeCartListeners } from '../cart.js';
-import { 
+import {
     initializeGlobalUI,
     initializeBookModal,
     setupSidebars,
-    setupFilters,
     setupBackToTopButton,
-    createCarouselSectionHTML,
-    initializeCarousels,
-    initializeProfileDropdown
+    createBookCardHTML,
+    initializeProfileDropdown,
 } from '../ui.js';
 
 let initialSearchResults = [];
 let initialOtherBooks = [];
+let swiperInstances = [];
+
+function createCategorySectionHTML(category, books, messageIfEmpty) {
+    if (!books || books.length === 0) {
+        return `
+            <section class="mb-8">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-gray-200 pb-2 border-b-2 border-gray-500">${category}</h2>
+                    <p class="text-gray-300 py-6">${messageIfEmpty}</p>
+                </div>
+            </section>
+        `;
+    }
+
+    const bookSlidesHTML = books.map(book => `
+        <div class="swiper-slide h-auto pb-10">
+            ${createBookCardHTML(book)}
+        </div>
+    `).join('');
+
+    return `
+        <section class="mb-2">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between mb-0">
+                    <h2 class="text-3xl font-bold text-gray-200 pb-2 border-b-2 border-gray-500">${category}</h2>
+                    <div class="flex space-x-2 shrink-0">
+                        <button class="swiper-button-prev-hook w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors disabled:opacity-50" aria-label="Slide anterior">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <button class="swiper-button-next-hook w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors disabled:opacity-50" aria-label="Próximo slide">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="swiper category-swiper w-full overflow-hidden py-6">
+                        <div class="swiper-wrapper">${bookSlidesHTML}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+function initializeCarousels() {
+    if (typeof Swiper === 'undefined') {
+        console.error('Swiper.js não foi carregado.');
+        return;
+    }
+
+    swiperInstances.forEach(swiper => swiper.destroy(true, true));
+    swiperInstances = [];
+
+    document.querySelectorAll('.category-swiper').forEach((swiperContainer) => {
+        const section = swiperContainer.closest('section');
+        if (!section) return;
+
+        const nextEl = section.querySelector('.swiper-button-next-hook');
+        const prevEl = section.querySelector('.swiper-button-prev-hook');
+
+        const swiper = new Swiper(swiperContainer, {
+            slidesPerView: 1.1,
+            spaceBetween: 16,
+            navigation: {
+                nextEl: nextEl,
+                prevEl: prevEl,
+            },
+            breakpoints: {
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                768: { slidesPerView: 3, spaceBetween: 30 },
+                1024: { slidesPerView: 4, spaceBetween: 30 },
+            }
+        });
+        swiperInstances.push(swiper);
+    });
+}
 
 function renderPageContent(results, others) {
     const resultsContainer = document.getElementById('search-results-container');
@@ -20,10 +94,9 @@ function renderPageContent(results, others) {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q') || '';
 
-    resultsContainer.innerHTML = createCarouselSectionHTML(
-        `Resultados para "${query}"`, 
-        results, 
-        'results', 
+    resultsContainer.innerHTML = createCategorySectionHTML(
+        `Resultados para "${query}"`,
+        results,
         'Não encontramos livros com esse padrão. Tente uma busca diferente.'
     );
 
@@ -33,10 +106,12 @@ function renderPageContent(results, others) {
     }, {});
 
     allBooksContainer.innerHTML = Object.entries(otherBooksByCategory)
-        .map(([category, books]) => createCarouselSectionHTML(`Outros Livros em ${category}`, books, category.toLowerCase().replace(/\s/g, ''), ''))
+        .map(([category, books]) => {
+            return createCategorySectionHTML(`Outros Livros em ${category}`, books, '');
+        })
         .join('');
-    
-    setTimeout(initializeCarousels, 0);
+
+    initializeCarousels();
 }
 
 function setupFiltersForSearchPage() {
@@ -47,7 +122,7 @@ function setupFiltersForSearchPage() {
     const stars = ratingFilterEl ? ratingFilterEl.querySelectorAll('.star') : [];
     const formatCheckboxes = document.querySelectorAll('#format-filter input[type="checkbox"]');
     const languageCheckboxes = document.querySelectorAll('#language-filter input[type="checkbox"]');
-    
+
     let selectedRating = 0;
 
     stars.forEach(star => {
@@ -109,7 +184,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSidebars();
     setupBackToTopButton();
 
-    //Puxar livros da API
     await fetchAllBooks();
     const books = getBooks();
 
@@ -117,11 +191,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const query = urlParams.get('q')?.toLowerCase() || '';
 
     if (document.getElementById('search-input')) {
-        document.getElementById('search-input').value = query;
+        document.getElementById('search-input').value = urlParams.get('q') || '';
     }
 
     if (query) {
-        booksData.forEach(book => {
+        books.forEach(book => {
             if (book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query)) {
                 initialSearchResults.push(book);
             } else {
@@ -129,11 +203,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     } else {
-        initialOtherBooks = [...booksData];
+        initialOtherBooks = [...books];
+        initialSearchResults = [];
     }
     
     renderPageContent(initialSearchResults, initialOtherBooks);
-    
+
     setupFiltersForSearchPage();
     initializeProfileDropdown();
 });
