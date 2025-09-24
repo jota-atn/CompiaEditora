@@ -11,56 +11,56 @@
 <body class="bg-gray-300">
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
-                <a href="#home" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">C</span>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800">COMPIA</h1>
-                        <p class="text-sm text-gray-600">Editora</p>
-                    </div>
-                </a>
-                
-                <nav class="hidden md:flex space-x-8">
-                    <a href="./index.html" class="nav-link">Início</a>
-                    <a href="./categorias.html" class="nav-link">Categorias</a> 
-                    <a href="#main-content" class="nav-link">Catálogo</a>
-                    <a href="#about" class="nav-link">Sobre</a> 
-                </nav>
-                
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            <a href="#home" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">C</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">COMPIA</h1>
+                    <p class="text-sm text-gray-600">Editora</p>
+                </div>
+            </a>
+            
+            <nav class="hidden md:flex space-x-8">
+                <a href="./index.html" class="nav-link">Início</a>
+                <a href="./categorias.html" class="nav-link">Categorias</a> 
+                <a href="#main-content" class="nav-link">Catálogo</a>
+                <a href="#about" class="nav-link">Sobre</a> 
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input id="search-input" type="text" placeholder="Buscar livros..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <button id="cart-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
+                    </svg>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-count">0</span>
+                </button>
+                <div class="relative">
+                    <button id="profile-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
-                    </div>
-                    <button id="cart-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0h9"></path>
-                        </svg>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-count">0</span>
                     </button>
-                    <div class="relative">
-                        <button id="profile-btn" class="relative p-2 text-gray-700 hover:text-blue-800 transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </button>
-                        <div id="profile-dropdown" 
-                            class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
-                                    transition-opacity duration-300 ease-in-out opacity-0 invisible">
-                            
-                            <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
-                                Meus Dados
-                            </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
-                            </a>
-                        </div>
+                    <div id="profile-dropdown" 
+                         class="absolute right-0 mt-2 w-48 bg-slate-50 rounded-md shadow-xl z-50 border border-gray-200
+                                transition-opacity duration-300 ease-in-out opacity-0 invisible">
+                        
+                        <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
+                            Meus Dados
+                        </a>
+                        <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
+                            Sair
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </header>
 
@@ -69,7 +69,12 @@
             
             <div class="lg:col-span-1 space-y-8">
                 <div class="flex justify-center">
-                    <img id="profile-pic" src="" alt="Foto do Perfil" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover">
+                    <div id="profile-pic-container" class="relative group cursor-pointer">
+                        <img id="profile-pic" src="" alt="Foto do Perfil" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                    </div>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
                     <div>
@@ -117,9 +122,6 @@
                         </button>
                     </div>
                 </div>
-                <div class="mt-4 text-right">
-                     <button class="text-sm text-red-500 hover:underline font-medium py-2 px-4">Sair da Conta</button>
-                </div>
             </div>
         </div>
     </main>
@@ -136,10 +138,9 @@
                 <h3 class="modal-title mb-0">Formas de Pagamento</h3>
                 <button class="modal-close">&times;</button>
             </div>
-            <div id="payment-list" class="space-y-4 max-h-80 overflow-y-auto pr-2">
-                </div>
+            <div id="payment-list" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
             <div class="mt-6 border-t pt-4">
-                <button class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                <button id="add-new-payment-btn" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
                     Adicionar Novo Cartão
                 </button>
             </div>
@@ -152,24 +153,12 @@
                 <h3 class="modal-title mb-0">Meus Endereços</h3>
                 <button class="modal-close">&times;</button>
             </div>
-            <div id="address-list" class="space-y-4 max-h-80 overflow-y-auto pr-2">
-                </div>
+            <div id="address-list" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
             <div class="mt-6 border-t pt-4">
-                <button class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                <button id="add-new-address-btn" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
                     Adicionar Novo Endereço
                 </button>
             </div>
-        </div>
-    </div>
-
-    <div id="orders-modal" class="modal-overlay hidden">
-        <div class="modal-content max-w-3xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="modal-title mb-0">Meus Pedidos</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div id="orders-list" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
-                </div>
         </div>
     </div>
 
@@ -179,7 +168,6 @@
                 <h3 class="modal-title mb-0">Editar Meus Dados</h3>
                 <button class="modal-close">&times;</button>
             </div>
-            
             <form id="edit-profile-form" class="space-y-4">
                 <div>
                     <label for="edit-name" class="block text-sm font-medium text-gray-700">Nome Completo</label>
@@ -211,7 +199,70 @@
         </div>
     </div>
     
-    <script type="module" src="js/pages/perfil.js"></script>
+    <div id="orders-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-3xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="modal-title mb-0">Meus Pedidos</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div id="orders-list" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2"></div>
+        </div>
+    </div>
 
+    <div id="add-address-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Adicionar Novo Endereço</h3><button class="modal-close">&times;</button></div>
+            <form id="add-address-form" class="space-y-4">
+                <div><label for="add-street" class="block text-sm font-medium text-gray-700">Rua e Número</label><input type="text" id="add-street" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="add-city" class="block text-sm font-medium text-gray-700">Cidade e Estado</label><input type="text" id="add-city" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="add-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="add-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="add-default-address" class="h-4 w-4 rounded border-gray-300"><label for="add-default-address" class="text-sm">Definir como padrão</label></div>
+                <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold">Adicionar Endereço</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-address-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Editar Endereço</h3><button class="modal-close">&times;</button></div>
+            <form id="edit-address-form" class="space-y-4">
+                <input type="hidden" id="edit-address-id">
+                <div><label for="edit-street" class="block text-sm font-medium text-gray-700">Rua e Número</label><input type="text" id="edit-street" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="edit-city" class="block text-sm font-medium text-gray-700">Cidade e Estado</label><input type="text" id="edit-city" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="edit-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="edit-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="edit-default-address" class="h-4 w-4 rounded border-gray-300"><label for="edit-default-address" class="text-sm">Definir como endereço padrão</label></div>
+                <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="add-payment-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Adicionar Novo Cartão</h3><button class="modal-close">&times;</button></div>
+            <form id="add-payment-form" class="space-y-4">
+                <div><label for="add-card-type" class="block text-sm font-medium text-gray-700">Tipo de Cartão</label><input type="text" id="add-card-type" placeholder="Ex: Crédito" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="add-card-last4" class="block text-sm font-medium text-gray-700">Últimos 4 dígitos</label><input type="text" id="add-card-last4" maxlength="4" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="add-card-expiry" class="block text-sm font-medium text-gray-700">Validade (MM/AA)</label><input type="text" id="add-card-expiry" placeholder="MM/AA" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold">Adicionar Cartão</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-payment-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Editar Cartão</h3><button class="modal-close">&times;</button></div>
+            <form id="edit-payment-form" class="space-y-4">
+                <input type="hidden" id="edit-payment-id">
+                <div><label for="edit-card-type" class="block text-sm font-medium text-gray-700">Tipo de Cartão</label><input type="text" id="edit-card-type" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="edit-card-last4" class="block text-sm font-medium text-gray-700">Últimos 4 dígitos</label><input type="text" id="edit-card-last4" maxlength="4" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div><label for="edit-card-expiry" class="block text-sm font-medium text-gray-700">Validade (MM/AA)</label><input type="text" id="edit-card-expiry" class="w-full mt-1 p-2 border rounded-md" required></div>
+                <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold">Salvar Alterações</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[99] space-y-3"></div>
+    <input type="file" id="profile-pic-input" class="hidden" accept="image/*">
+    <script type="module" src="js/pages/perfil.js"></script>
 </body>
 </html>
