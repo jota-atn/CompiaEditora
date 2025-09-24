@@ -12,7 +12,6 @@ import 'dotenv/config';
  * @param {object} res - O objeto de resposta do Express, usado para enviar a resposta (o valor do frete ou um erro) de volta ao cliente.
  * @returns {Promise<void>} Esta função não retorna um valor diretamente, mas envia uma resposta HTTP ao cliente.
  */
-
 export const calcularFrete = async (req, res) => {
 
     const { to_postal_code, weight, width, height, length } = req.body;
@@ -38,8 +37,7 @@ export const calcularFrete = async (req, res) => {
 
     try {
         const response = await axios.post(
-            `${process.env.MELHOR_ENVIO_API_URL}/api/v2/me/shipment/calculate`,
-            requestData,
+            `${process.env.MELHOR_ENVIO_API_URL}/api/v2/me/shipment/calculate`, requestData,
             {
                 headers: {
                     'Accept': 'application/json',
