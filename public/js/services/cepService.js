@@ -4,7 +4,7 @@
  * @returns {Promise<object>} Uma Promise que resolve para o objeto do endereço.
  * @throws {Error} Lança um erro se o CEP não for encontrado ou se houver falha na comunicação.
  */
-async function consultarCep(cep) {
+const consultarCep = async (cep) => {
     try {
         const response = await fetch(`/api/cep/${cep}`);
         const data = await response.json();
