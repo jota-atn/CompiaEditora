@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import cors from 'cors';
 
 import booksRouter from './routes/books.js';
-// import freteRoutes from './src/routes/frete.js';
+import freteRoutes from './routes/frete.js';
  
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // booksRouter irá gerenciar as requisições para /api/books
 app.use('/api/books', booksRouter);
-// app.use('/api/frete', freteRoutes);//Descomentar quando pronto
+app.use('/api/frete', freteRoutes);
 
 // Exporta o app para o server.js usar
 export default app;

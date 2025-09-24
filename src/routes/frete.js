@@ -1,24 +1,20 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const freteController = require('../controllers/freteController');
+
+import { calcularFrete } from '../controllers/freteController.js';
 
 /**
  * @route POST /api/frete
- * @description Rota para calcular o preço e o prazo de entrega de uma encomenda.
- * @access Public
- * @param {object} req.body.data - O corpo da requisição deve ser um JSON contendo os detalhes do frete.
- * @param {string} req.body.data.cepOrigem - CEP de origem (apenas números).
- * @param {string} req.body.data.cepDestino - CEP de destino (apenas números).
- * @param {string} req.body.data.pesoKg - Peso do pacote em Kg.
- * @param {string} req.body.data.formato - Código do formato (1: Caixa, 2: Rolo, 3: Envelope).
- * @param {string} req.body.data.comprimento - Comprimento do pacote em cm.
- * @param {string} req.body.data.altura - Altura do pacote em cm.
- * @param {string} req.body.data.largura - Largura do pacote em cm.
- * @param {string} req.body.data.valorDeclarado - Valor declarado do produto para seguro.
- * @returns {object} 200 - Retorna um JSON com o valor e o prazo do frete.
- * @returns {object} 400 - Retorna um erro se os Correios retornarem uma mensagem de erro (ex: CEP inválido).
- * @returns {object} 500 - Retorna um erro interno do servidor.
+ * @description Rota para calcular o preço da entrega de uma encomenda.
+ * @param {object} req.body - O corpo da requisição contendo os dados para o cálculo.
+ * @param {string} req.body.to_postal_code - O CEP de destino para a entrega.
+ * @param {number} req.body.weight - O peso do pacote em quilogramas (kg).
+ * @param {number} req.body.width - A largura do pacote em centímetros (cm).
+ * @param {number} req.body.height - A altura do pacote em centímetros (cm).
+ * @param {number} req.body.length - O comprimento do pacote em centímetros (cm).
+ * @returns {object[]} res - Em caso de sucesso, retorna um array de objetos, onde cada objeto é uma opção de frete.
+ * @returns {object} res - Em caso de erro, retorna um objeto com uma propriedade 'error'.
  */
-router.post('/', freteController.calcularFrete);
+router.post('/', calcularFrete);
 
-module.exports = router;
+export default router;
