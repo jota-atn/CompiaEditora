@@ -45,6 +45,11 @@ body {
     transition: color var(--transition-duration) var(--transition-timing);
 }
 
+.nav-item.active {
+    background-color: #111827;
+    color: white;
+}
+
 .nav-link.active {
     color: var(--color-text-hover);
     font-weight: 700;
