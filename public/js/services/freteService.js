@@ -14,7 +14,7 @@ const API_URL = '/api/frete';
  * @returns {Promise<Array<object>>} Uma Promise que resolve para um array de objetos, onde cada objeto é uma opção de frete válida.
  * @throws {Error} Lança um erro se a requisição falhar (seja por problema de rede ou erro retornado pela API). A mensagem do erro será a retornada pelo back-end.
  */
-const calcularFrete = async (dadosDoPacote) => {
+export const calcularFrete = async (dadosDoPacote) => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',

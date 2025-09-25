@@ -1,4 +1,5 @@
 import { debounce, initializeProfileDropdown } from '../ui.js';
+import { calcularFrete } from '../services/freteService.js';
 
 function setupInputMasks() {
     const cardNumberEl = document.getElementById('card-number');
@@ -35,9 +36,11 @@ function setupInputMasks() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const realBooks = cart.filter(book => book.format !== 'E-book');
     
     const subtotalEl = document.getElementById('summary-subtotal');
     const totalEl = document.getElementById('summary-total');
+    const shippingEl = document.getElementById('summary-shipping');
     const summaryAddressEl = document.getElementById('summary-address');
 
     const addressInputs = {
@@ -83,9 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
     
     const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shipping = 15.00;
+    const shipping = 0.00;
     const total = subtotal + shipping;
     subtotalEl.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    shippingEl.textContent = realBooks.length === 0 ? `R$ ${shipping.toFixed(2).replace('.', ',')}` : 'A calcular...';
     totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 
     new Swiper('.checkout-swiper', {
@@ -113,9 +117,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupInputMasks();
 
-    const checkFormValidity = () => {
-        const isAddressValid = Object.entries(addressInputs)
+    const updateFinancialSummary = (shippingCost) => {
+        const freteValido = typeof shippingCost === 'number' && shippingCost >= 0;
+        const custoFrete = freteValido ? shippingCost : 0;
+
+        shippingEl.textContent = freteValido || realBooks.length === 0 ? `R$ ${custoFrete.toFixed(2).replace('.', ',')}` : 'Indisponível';
+        
+        const total = subtotal + custoFrete;
+        totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    const isAddressComplete = () => {
+        return Object.entries(addressInputs)
             .every(([key, input]) => input.placeholder.includes('Opcional') || input.value.trim() !== '');
+    };
+
+    const isShippingValid = () => {
+        const shipping = shippingEl.textContent;
+        return shipping !== 'A calcular...' && shipping !== 'Calculando...' && shipping !== 'Indisponível';
+    };
+
+    const handleShippingCalculation = async () => {
+        if (realBooks == 0) {
+            shippingEl.textContent = 'R$ 0,00';
+            updateFinancialSummary(0);
+            return;
+        }
+
+        if (!isAddressComplete()) {
+            shippingEl.textContent = 'A calcular...';
+            updateFinancialSummary(null);
+            return;
+        }
+        
+        shippingEl.textContent = 'Calculando...';
+        
+        const totalWeight = realBooks.reduce((acc, item) => acc + (item.quantity * 0.5), 0);
+        const totalHeight = realBooks.reduce((acc, item) => acc + (item.quantity * 5), 0);
+        const dadosDoPacote = {
+            to_postal_code: addressInputs.cep.value.replace(/\D/g, ''),
+            weight: totalWeight < 0.3 ? 0.3 : totalWeight,
+            width: 16,
+            height: totalHeight < 5 ? 5: totalHeight,
+            length: 23,
+        };
+
+        try {
+            const freteOptions = await calcularFrete(dadosDoPacote);
+
+            if (freteOptions && freteOptions.length > 0) {
+                const freteOptionsValid = freteOptions.filter(option => Object.hasOwn(option, "price"));
+                const cheapestOption = freteOptionsValid.reduce((min, current) => 
+                    parseFloat(current.price) < parseFloat(min.price) ? current : min
+                );
+                updateFinancialSummary(parseFloat(cheapestOption.price));
+            } else {
+                updateFinancialSummary(null);
+            }
+        } catch (error) {
+            console.error("Erro ao calcular frete:", error);
+            shippingEl.textContent = 'Erro ao calcular';
+            updateFinancialSummary(null);
+        }
+    };
+
+    const checkFormValidity = () => {
+        const isAddressValid = isAddressComplete() || realBooks.length === 0;
 
         const isPaymentValid = Object.values(paymentInputs)
             .every(input => input.value.trim() !== '');
@@ -124,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const toggleConfirmButton = () => {
-        if (checkFormValidity()) {
+        if (checkFormValidity() && isShippingValid()) {
             confirmBtn.disabled = false;
             confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         } else {
@@ -154,12 +221,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     allInputs.forEach(input => {
         if (input) {
+            const isAddressField = Object.values(addressInputs).includes(input);
+            const debounceTime = isAddressField ? 500 : 300; 
+
             input.addEventListener('input', debounce(() => {
                 toggleConfirmButton();
-                if (Object.values(addressInputs).includes(input)) {
+                if (isAddressField) {
                     updateAddressSummary();
+                    handleShippingCalculation(); 
                 }
-            }, 300));
+            }, debounceTime));
         }
     });
 

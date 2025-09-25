@@ -20,6 +20,10 @@ export const calcularFrete = async (req, res) => {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
 
+    if (to_postal_code.length != 8) {
+        return res.status(400).json({ erro: 'O campo to.postal code deve ter exatamente 8 caracteres'});
+    }
+
     const requestData = {
         from: {
             postal_code: '58429900',
