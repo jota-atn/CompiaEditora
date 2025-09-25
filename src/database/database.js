@@ -1,4 +1,5 @@
 import sqlite3 from 'sqlite3';
+import bcrypt from 'bcrypt';
 //Importando o SQLite pro Node
 
     //Tenta conectar ao BD, em caso de sucesso chama a função de criar tabelas, em caso de falha retorna erro.
@@ -32,6 +33,18 @@ export function createTables(callback) {
         `, (err) => {
             if (err) console.error('Erro ao criar tabela "books":', err.message);
             else console.log('Tabela "books" verificada/pronta.');
+        });
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL
+            )
+        `, (err) => {
+            if (err) console.error('Erro ao criar tabela "users":', err.message);
+            else console.log('Tabela "users" verificada/pronta.');
         });
 
         // Cria a tabela de edições de livros
@@ -187,7 +200,33 @@ export function updateBook(id, book, callback) {
     });
 }
 
+
+export function createUser(user, callback) {
+    // Criptografa a senha com bcrypt antes de salvar
+    // O '10' é o "custo" da criptografia, um valor padrão e seguro
+    bcrypt.hash(user.password, 10, (err, hash) => {
+        if (err) return callback(err);
+
+        const query = `
+            INSERT INTO users (name, email, password)
+            VALUES (?, ?, ?)
+        `;
+        
+        db.run(query, [
+            user.name, user.email, hash
+        ], function(err) {
+            if (err) return callback(err);
+            // Retorna o ID do novo usuário criado
+            callback(null, { id: this.lastID });
+        });
+    });
+}
+
+export function findUserByEmail(email, callback) {
+    db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
+        callback(err, user);
+    });
+}
+
 // Exporta as funções e o objeto db
 export default db;
-
-//TODO: Criar a parte de usuários

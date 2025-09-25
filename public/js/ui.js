@@ -1,5 +1,6 @@
 import { addToCart } from './cart.js';
 import { getBookById, getBooks } from './bookService.js';
+import { logout } from './auth.js';
 
 let swiperInstances = [];
 
@@ -422,8 +423,7 @@ export function initializeProfileDropdown() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (event) => {
             event.preventDefault();
-            alert('Você foi desconectado!');
-            window.location.href = 'login.html';
+            logout(); 
         });
     }
 }
