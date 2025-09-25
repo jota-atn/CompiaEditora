@@ -1,6 +1,15 @@
 import { debounce, initializeProfileDropdown } from '../ui.js';
 import { calcularFrete } from '../services/freteService.js';
 
+const PACKAGE_DEFAULTS = {
+    BOOK_WEIGHT_KG: 0.5,
+    BOOK_THICKNESS_CM: 3,
+    MIN_WEIGHT_KG: 0.3,
+    MIN_HEIGHT_CM: 2,
+    PACKAGE_WIDTH_CM: 16,
+    PACKAGE_LENGTH_CM: 23,
+};
+
 function setupInputMasks() {
     const cardNumberEl = document.getElementById('card-number');
     const cardExpiryEl = document.getElementById('card-expiry');
@@ -137,6 +146,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return shipping !== 'A calcular...' && shipping !== 'Calculando...' && shipping !== 'Indisponível';
     };
 
+    function getPackageDetails(physicalItems) {
+        const totalWeight = physicalItems.reduce((acc, item) => acc + (item.quantity * PACKAGE_DEFAULTS.BOOK_WEIGHT_KG), 0);
+        const stackedHeight = physicalItems.reduce((acc, item) => acc + (item.quantity * PACKAGE_DEFAULTS.BOOK_THICKNESS_CM), 0);
+        
+        return {
+            to_postal_code: addressInputs.cep.value.replace(/\D/g, ''),
+            weight: Math.max(totalWeight, PACKAGE_DEFAULTS.MIN_WEIGHT_KG),
+            width: PACKAGE_DEFAULTS.PACKAGE_WIDTH_CM,
+            length: PACKAGE_DEFAULTS.PACKAGE_LENGTH_CM,
+            height: Math.max(stackedHeight, PACKAGE_DEFAULTS.MIN_HEIGHT_CM),
+        };
+    }
+
     const handleShippingCalculation = async () => {
         if (realBooks == 0) {
             shippingEl.textContent = 'R$ 0,00';
@@ -151,19 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         shippingEl.textContent = 'Calculando...';
-        
-        const totalWeight = realBooks.reduce((acc, item) => acc + (item.quantity * 0.5), 0);
-        const totalHeight = realBooks.reduce((acc, item) => acc + (item.quantity * 5), 0);
-        const dadosDoPacote = {
-            to_postal_code: addressInputs.cep.value.replace(/\D/g, ''),
-            weight: totalWeight < 0.3 ? 0.3 : totalWeight,
-            width: 16,
-            height: totalHeight < 5 ? 5: totalHeight,
-            length: 23,
-        };
 
         try {
-            const freteOptions = await calcularFrete(dadosDoPacote);
+            const freteOptions = await calcularFrete(getPackageDetails(realBooks));
 
             if (freteOptions && freteOptions.length > 0) {
                 const freteOptionsValid = freteOptions.filter(option => Object.hasOwn(option, "price"));
