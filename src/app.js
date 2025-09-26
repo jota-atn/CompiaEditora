@@ -7,6 +7,7 @@ import booksRouter from './routes/books.js';
 import freteRoutes from './routes/frete.js';
 import cepRoutes from './routes/cep.js'
 import pagamentoRoutes from './routes/pagamento.js'
+import userRouter from './routes/users.js';
  
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +24,7 @@ app.use('/api/books', booksRouter);
 app.use('/api/frete', freteRoutes);
 app.use('/api/cep', cepRoutes);
 app.use('/api/pagamento', pagamentoRoutes);
+app.use('/api/users', userRouter);  
 
 // Exporta o app para o server.js usar
 export default app;
