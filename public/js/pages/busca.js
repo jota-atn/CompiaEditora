@@ -8,8 +8,9 @@ import {
     setupBackToTopButton,
     createCarouselSectionHTML,
     initializeCarousels,
-    initializeProfileDropdown
 } from '../ui.js';
+import { logout } from '../auth.js';
+
 
 let initialSearchResults = [];
 let initialOtherBooks = [];
@@ -135,5 +136,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPageContent(initialSearchResults, initialOtherBooks);
     
     setupFiltersForSearchPage();
-    initializeProfileDropdown();
+    initializeGlobalUI()
 });

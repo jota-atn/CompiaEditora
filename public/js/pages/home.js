@@ -5,8 +5,9 @@ import {
     initializeGlobalUI, 
     initializeBackToTopButton,
     initializeBookModal,
-    initializeProfileDropdown
 } from '../ui.js';
+import { logout } from '../auth.js';
+
 
 function renderCatalogCarousel(books) {
     const carouselWrapper = document.getElementById('books-carousel-wrapper');
@@ -51,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeGlobalUI();
     initializeBackToTopButton();
     initializeBookModal();
-    initializeProfileDropdown();
 
     //Puxar livros da API
     await fetchAllBooks();

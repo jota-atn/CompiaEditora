@@ -2,8 +2,6 @@ import { addToCart } from './cart.js';
 import { getBookById, getBooks } from './bookService.js';
 import { logout } from './auth.js';
 
-let swiperInstances = [];
-
 export function createBookCardHTML(book) {
     const hasEditions = book.editions && book.editions.length > 0;
     
@@ -53,55 +51,79 @@ export function debounce(func, wait = 200) {
 }
 
 export function initializeGlobalUI() {
-    const cartBtn = document.getElementById('cart-btn');
-    const cartModal = document.getElementById('cart-modal');
-    const closeCart = document.getElementById('close-cart');
+    console.log("--- DEBUG: initializeGlobalUI INICIOU ---");
 
-    if (cartBtn && cartModal && closeCart) {
-        cartBtn.addEventListener('click', () => cartModal.classList.remove('hidden'));
-        closeCart.addEventListener('click', () => cartModal.classList.add('hidden'));
-        cartModal.addEventListener('click', (e) => {
-            if (e.target === cartModal) {
-                cartModal.classList.add('hidden');
+    try {
+        const cartBtn = document.getElementById('cart-btn');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCart = document.getElementById('close-cart');
+        if (cartBtn) {
+            cartBtn.addEventListener('click', () => cartModal.classList.remove('hidden'));
+            closeCart.addEventListener('click', () => cartModal.classList.add('hidden'));
+            cartModal.addEventListener('click', (e) => {
+                if (e.target === cartModal) cartModal.classList.add('hidden');
+            });
+        }
+        console.log("Checkpoint 1: Lógica do Carrinho OK.");
+    } catch (e) { console.error("ERRO na lógica do Carrinho:", e); }
+
+    try {
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                profileDropdown.classList.toggle('opacity-0');
+                profileDropdown.classList.toggle('invisible');
+            });
+            window.addEventListener('click', (event) => {
+                if (!profileDropdown.classList.contains('invisible') && !profileBtn.contains(event.target)) {
+                    profileDropdown.classList.add('opacity-0', 'invisible');
+                }
+            });
+        }
+        console.log("Checkpoint 2: Lógica do Dropdown de Perfil OK.");
+    } catch (e) { console.error("ERRO na lógica do Dropdown:", e); }
+
+    try {
+        const logoutButtons = document.querySelectorAll('.logout-btn');
+        logoutButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                logout(); 
+            });
+        });
+        console.log(`Checkpoint 3: Lógica de Logout OK. (${logoutButtons.length} botões encontrados)`);
+    } catch (e) { console.error("ERRO na lógica de Logout:", e); }
+
+    try {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (query) window.location.href = `./busca.html?q=${encodeURIComponent(query)}`;
+                }
+            });
+        }
+        console.log("Checkpoint 4: Lógica da Busca OK.");
+    } catch (e) { console.error("ERRO na lógica da Busca:", e); }
+    
+    try {
+        document.body.addEventListener('click', (event) => {
+            const button = event.target.closest('.add-to-cart');
+            if (button && !button.disabled) {
+                const bookId = parseInt(button.dataset.bookId, 10);
+                const book = getBookById(bookId);
+                if (book && book.editions && book.editions.length > 0) {
+                    addToCart(bookId, book.editions[0].format);
+                }
             }
         });
-    }
+        console.log("Checkpoint 5: Lógica de Adicionar ao Carrinho OK.");
+    } catch (e) { console.error("ERRO na lógica de Adicionar ao Carrinho:", e); }
 
-    setupSearchRedirect();
-
-    document.body.addEventListener('click', (event) => {
-        const button = event.target.closest('.add-to-cart');
-        if (!button || button.disabled) return;
-
-        const bookId = parseInt(button.dataset.bookId, 10);
-        let formatToAdd;
-
-        const modal = event.target.closest('#book-modal');
-        if (modal) {
-            const selectedButton = modal.querySelector('.format-btn.selected');
-            if (selectedButton) {
-                formatToAdd = selectedButton.dataset.format;
-            }
-        } else {
-            const book = getBookById(bookId);
-            if (book && book.editions && book.editions.length > 0) {
-                const cheapestEdition = [...book.editions].sort((a, b) => a.price - b.price)[0];
-                formatToAdd = cheapestEdition.format;
-            }
-        }
-        
-        if (formatToAdd) {
-            addToCart(bookId, formatToAdd);
-
-            button.textContent = 'Adicionado!';
-            button.classList.replace('bg-orange-500', 'bg-green-500');
-            
-            setTimeout(() => {
-                button.textContent = 'Adicionar ao Carrinho';
-                button.classList.replace('bg-green-500', 'bg-orange-500');
-            }, 2000);
-        }
-    });
+    console.log("--- DEBUG: initializeGlobalUI TERMINOU ---");
 }
 
 export function setupSearchRedirect() {
@@ -396,12 +418,10 @@ export function initializeProfileDropdown() {
     
     if (!profileBtn || !profileDropdown) return;
 
-    const logoutBtn = document.getElementById('logout-btn');
-
+    // Lógica para abrir e fechar o dropdown
     const toggleDropdown = (event) => {
         event.stopPropagation();
         const isVisible = profileDropdown.classList.contains('visible');
-
         if (isVisible) {
             profileDropdown.classList.remove('opacity-100', 'visible');
             profileDropdown.classList.add('opacity-0', 'invisible');
@@ -420,11 +440,16 @@ export function initializeProfileDropdown() {
         }
     });
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (event) => {
+    // Lógica para os botões de logout
+    // Encontra TODOS os elementos com a classe '.logout-btn'
+    const logoutButtons = document.querySelectorAll('.logout-btn');
+    
+    // Adiciona o 'escutador' de clique para CADA um deles
+    logoutButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
             event.preventDefault();
             logout(); 
         });
-    }
+    });
 }
 

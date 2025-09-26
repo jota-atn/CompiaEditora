@@ -24,7 +24,7 @@
                 <nav class="hidden md:flex space-x-8">
                     <a href="./index.html" class="nav-link">Início</a>
                     <a href="./categorias.html" class="nav-link">Categorias</a> 
-                    <a href="#main-content" class="nav-link">Catálogo</a>
+                    <a href="./catalogo.html" class="nav-link">Catálogo</a>
                     <a href="#about" class="nav-link">Sobre</a> 
                 </nav>
                 
@@ -54,8 +54,7 @@
                             <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
                                 Meus Dados
                             </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
+                            <a href="#" class="logout-btn block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
                             </a>
                         </div>
                     </div>
@@ -118,8 +117,8 @@
                     </div>
                 </div>
                 <div class="mt-4 text-right">
-                     <button class="text-sm text-red-500 hover:underline font-medium py-2 px-4">Sair da Conta</button>
-                </div>
+                     <button id="delete-account-btn" class="text-sm text-red-500 hover:underline font-medium py-2 px-4">Deletar Conta</button>
+                    <button class="logout-btn text-sm text-red-500 hover:underline font-medium py-2 px-4">Sair da Conta</button>
             </div>
         </div>
     </main>
@@ -186,6 +185,10 @@
                     <input type="text" id="edit-name" class="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
+                    <label for="edit-profilePicture" class="block text-sm font-medium text-gray-700">URL da Foto de Perfil</label>
+                    <input type="url" id="edit-profilePicture" class="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
                     <label for="edit-email" class="block text-sm font-medium text-gray-700">Email</label>
                     <input type="email" id="edit-email" class="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -199,9 +202,7 @@
                 </div>
                 <div>
                     <label for="edit-cpf" class="block text-sm font-medium text-gray-700">CPF</label>
-                    <input type="text" id="edit-cpf" class="w-full mt-1 p-2 border rounded-md bg-gray-100 cursor-not-allowed" disabled>
-                    <p class="text-xs text-gray-400 mt-1">O CPF não pode ser alterado.</p>
-                </div>
+                    <input type="text" id="edit-cpf" class="w-full mt-1 p-2 border rounded-md bg-gray-100 cursor-not-allowed">
                 <div class="mt-6 border-t pt-4">
                     <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                         Salvar Alterações
@@ -210,7 +211,7 @@
             </form>
         </div>
     </div>
-    
+    <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script> 
     <script type="module" src="js/pages/perfil.js"></script>
 
 </body>
