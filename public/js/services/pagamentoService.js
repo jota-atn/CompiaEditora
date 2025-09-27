@@ -16,7 +16,7 @@ const PAGAMENTO_API_URL = '/api/pagamento';
  * @returns {Promise<object>} Uma Promise que resolve para o objeto da cobrança PIX gerada (com QR Code, etc.).
  * @throws {Error} Lança um erro se a requisição falhar, contendo a mensagem de erro retornada pelo back-end.
  */
-const criarCobrancaPix = async (dadosCobranca) => {
+export const criarCobrancaPix = async (dadosCobranca) => {
     try {
         const response = await fetch(PAGAMENTO_API_URL, {
             method: 'POST',
@@ -39,15 +39,3 @@ const criarCobrancaPix = async (dadosCobranca) => {
         throw error;
     }
 }
-
-//Mais uma vez, um teste para verificar a saída no terminal do index.html
-cobrancaTeste = {
-  amount: 100,
-  expiresIn: 1000,
-  description: "teste",
-  name: "nomeTeste",
-  cellphone: "83999999999",
-  email: "testeemail@gmail.com",
-  taxId: "71801094446"
-}
-criarCobrancaPix(cobrancaTeste).then(valor => console.log(valor)).catch(erro => console.log(erro));

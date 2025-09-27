@@ -453,3 +453,73 @@ export function initializeProfileDropdown() {
     });
 }
 
+/**
+ * Inicializa e gerencia o modal de pagamento PIX.
+ * Configura os eventos de abrir, fechar e copiar o código.
+ * @returns {function} Uma função `openPixModal` que pode ser chamada para abrir o modal com os dados do PIX.
+ */
+export const initializePixModal = () => {
+    const modal = document.getElementById('pix-modal');
+    if (!modal) return () => {}; // Retorna uma função vazia se o modal não existir na página
+
+    const modalContent = document.getElementById('pix-modal-content');
+    const closeModalBtn = document.getElementById('close-pix-modal');
+    const qrCodeImg = document.getElementById('pix-qrcode-image');
+    const pixCodeInput = document.getElementById('pix-copy-paste-code');
+    const copyBtn = document.getElementById('copy-pix-code-btn');
+    const confirmedBtn = document.getElementById('pix-confirmed-btn');
+
+    // Função para fechar o modal com animação
+    const closeModal = () => {
+        modalContent.classList.remove('scale-100');
+        modal.classList.remove('opacity-100');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    // Função para copiar o código PIX para a área de transferência
+    const copyPixCode = () => {
+        navigator.clipboard.writeText(pixCodeInput.value).then(() => {
+            copyBtn.textContent = 'Copiado!';
+            setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+        }).catch(err => {
+            console.error('Falha ao copiar o código PIX:', err);
+            alert('Não foi possível copiar o código.');
+        });
+    };
+
+    // Função para finalizar o pedido
+    const finalizeOrder = () => {
+        alert('Pagamento confirmado! Obrigado por comprar na COMPIA.');
+        localStorage.removeItem('cart'); // Limpa o carrinho
+        window.location.href = './index.html'; // Redireciona para a home
+    };
+
+    // Adiciona os eventos aos botões e elementos
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal(); // Fecha se clicar no fundo escuro
+    });
+    copyBtn.addEventListener('click', copyPixCode);
+    confirmedBtn.addEventListener('click', finalizeOrder);
+
+    /**
+     * Abre o modal e preenche com os dados do PIX.
+     * @param {string} qrCodeBase64 - A imagem do QR Code em formato base64.
+     * @param {string} payload - O código "copia e cola" do PIX.
+     */
+    const openPixModal = (qrCodeBase64, payload) => {
+        // Preenche os campos do modal com os dados recebidos da API
+        qrCodeImg.src = qrCodeBase64;
+        pixCodeInput.value = payload;
+        
+        // Abre o modal com animação
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    };
+
+    // Retorna a função que será usada externamente para abrir o modal
+    return openPixModal;
+}

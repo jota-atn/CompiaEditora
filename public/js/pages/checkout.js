@@ -1,5 +1,6 @@
-import { debounce, initializeProfileDropdown } from '../ui.js';
+import { debounce, initializeProfileDropdown, initializePixModal } from '../ui.js';
 import { calcularFrete } from '../services/freteService.js';
+ import { criarCobrancaPix } from '../services/pagamentoService.js'
 
 const PACKAGE_DEFAULTS = {
     BOOK_WEIGHT_KG: 0.5,
@@ -10,7 +11,23 @@ const PACKAGE_DEFAULTS = {
     PACKAGE_LENGTH_CM: 23,
 };
 
-function setupInputMasks() {
+/**
+ * Converte uma string de moeda BRL (ex: "R$ 123,45") para um número inteiro de centavos.
+ * @param {string} brlString - A string de moeda a ser convertida.
+ * @returns {number} O valor em centavos (ex: 12345).
+ */
+const parseBRLToCents = (brlString) => {
+    if (typeof brlString !== 'string') return 0;
+    const cleanedString = brlString.replace('R$ ', '').replace(/\./g, '');
+    const dotDecimalString = cleanedString.replace(',', '.');
+    const valueInReais = parseFloat(dotDecimalString);
+    if (isNaN(valueInReais)) {
+        return 0;
+    }
+    return Math.round(valueInReais * 100);
+}
+
+const setupInputMasks = () => {
     const cardNumberEl = document.getElementById('card-number');
     const cardExpiryEl = document.getElementById('card-expiry');
     const cardCvcEl = document.getElementById('card-cvc');
@@ -44,6 +61,8 @@ function setupInputMasks() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const openPixModal = initializePixModal();
+
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const realBooks = cart.filter(book => book.format !== 'E-book');
     
@@ -246,12 +265,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
         if(checkFormValidity()) {
-            alert('Pedido confirmado com sucesso! Obrigado por comprar na COMPIA.');
-            localStorage.removeItem('cart');
-            window.location.href = './index.html';
-        }
+            // Troque o alert antigo por esta nova lógica
+            try {
+                const totalText = totalEl.textContent;
+                const totalInCents = parseBRLToCents(totalText);
+                
+                if (totalInCents <= 0) {
+                    alert("O valor total do pedido não pode ser zero.");
+                    return;
+                }
+                // Coleta os dados necessários para a cobrança PIX
+                // Adapte os IDs se os campos do seu formulário forem diferentes
+                console.log(total);
+                const dadosParaCobranca = {
+                    amount: totalInCents, // ATENÇÃO: Pegue o valor total real do pedido
+                    expiresIn: 300, // 5 minutos
+                    description: "Compra na COMPIA Editora",
+                    name: document.querySelector('input[placeholder="Nome Completo"]').value, // Tá pegando do formulário de cartão de crédito (PRECISA CRIAR/TROCAS DE CRÉDITO PARA INFORMAÇÕES DE PAGAMENTO)
+                    cellphone: '83999999999', // Adicionar campo de telefone
+                    email: 'cliente@email.com', // adicionar campo de e-mail
+                    taxId: '52998224725' // Adicionar campo de cpf (TEM QUE VER ISSO SE PODE OU NÃO :())
+                };
+
+                console.log("Gerando PIX...");
+                // Chama a API para criar a cobrança
+                const resultadoPix = await criarCobrancaPix(dadosParaCobranca);
+
+                console.log("PIX gerado:", resultadoPix);
+                // Abre o modal com os dados recebidos
+                openPixModal(resultadoPix.data.brCodeBase64, resultadoPix.data.brCode);
+
+            } catch (error) {
+                console.error("Erro ao gerar a cobrança PIX:", error);
+                alert(`Não foi possível gerar o PIX: ${error.message}`);
+            }
+        }   
     });
     updateAddressSummary();
     toggleConfirmButton();

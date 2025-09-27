@@ -149,6 +149,37 @@
 
         </div>
     </main>
+
+    <div id="pix-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div id="pix-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-sm w-full mx-auto relative transform scale-95 transition-transform duration-300 text-center">
+            
+            <button id="close-pix-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Pague com PIX</h2>
+            <p class="text-gray-600 mb-6">Escaneie o QR Code abaixo com o app do seu banco para pagar.</p>
+            
+            <div class="flex justify-center mb-6">
+                <img id="pix-qrcode-image" src="" alt="QR Code PIX" class="w-48 h-48 rounded-lg bg-gray-200">
+            </div>
+
+            <p class="text-gray-600 mb-2 text-sm">Ou use o código Copia e Cola:</p>
+
+            <div class="flex items-center border-2 border-gray-200 rounded-lg p-1">
+                <input id="pix-copy-paste-code" type="text" readonly class="flex-grow bg-transparent border-none text-gray-700 text-sm focus:ring-0 p-2" value="Aguardando código PIX...">
+                <button id="copy-pix-code-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors text-sm">
+                    Copiar
+                </button>
+            </div>
+            
+            <div class="mt-8">
+                <button id="pix-confirmed-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                    Já paguei, concluir pedido!
+                </button>
+            </div>
+        </div>
+    </div>
     
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-4 text-center text-gray-400">
