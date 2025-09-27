@@ -1,4 +1,5 @@
-import { debounce, initializeProfileDropdown, initializePixModal } from '../ui.js';
+import { debounce, initializePixModal, initializeGlobalUI } from '../ui.js';
+import { updateCartUI } from '../cart.js';
 import { calcularFrete } from '../services/freteService.js';
 import { criarCobrancaPix } from '../services/pagamentoService.js';
 import { getUserProfile } from '../services/userService.js';
@@ -261,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     updateAddressSummary();
     toggleConfirmButton();
-    initializeProfileDropdown();
     initializeGlobalUI();
+    updateCartUI();
 });
 

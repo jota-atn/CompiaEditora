@@ -13,7 +13,7 @@
 
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4"> <div class="flex items-center justify-between w-full">
-                <a href="#home" class="flex items-center space-x-3">
+                <a href="./index.html" class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-cyan-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
                     </div>
@@ -138,6 +138,32 @@
 
         </div>
     </main>
+
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Carrinho de Compras</h3>
+                <button id="clear-cart-btn" class="text-sm text-red-500 hover:underline focus:outline-none font-medium">Limpar Carrinho</button>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="cart-items" class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                <p class="text-gray-500 text-center py-8">Seu carrinho está vazio</p>
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-blue-800">R$ 0,00</span>
+                </div>
+                <button id="checkout-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Finalizar Compra
+                </button>
+            </div>
+        </div>
+    </div>    
 
     <div id="pix-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4 transition-opacity duration-300">
         <div id="pix-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-sm w-full mx-auto relative transform scale-95 transition-transform duration-300 text-center">
