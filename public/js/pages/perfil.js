@@ -1,116 +1,142 @@
-import { userData } from '../profileData.js';
-import { initializeProfileDropdown } from '../ui.js';
+import { initializeGlobalUI} from '../ui.js';
+import { logout } from '../auth.js'; 
 
-
-function renderAddressesModal() {
-    const container = document.getElementById('address-list');
-    if (!container) return;
-
-    container.innerHTML = userData.addresses.map(addr => `
-        <div class="p-4 border rounded-lg ${addr.default ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="font-semibold text-gray-800">${addr.street}</p>
-                    <p class="text-sm text-gray-600">${addr.city}</p>
-                    <p class="text-sm text-gray-500">${addr.cep}</p>
-                </div>
-                <div class="flex items-center gap-4 text-sm font-medium">
-                    <button class="text-blue-600 hover:underline edit-address-btn" data-address-id="${addr.id}">Editar</button>
-                    <button class="text-red-500 hover:underline delete-address-btn" data-address-id="${addr.id}">Remover</button>
-                </div>
-            </div>
-            ${addr.default ? '<div class="mt-2 pt-2 border-t"><span class="text-xs font-bold text-blue-600">Endereço Padrão</span></div>' : ''}
-        </div>
-    `).join('');
+// --- FUNÇÕES DE VALIDAÇÃO E FORMATAÇÃO ---
+function formatCPF(cpf) {
+    const cleaned = ('' + cpf).replace(/\D/g, '');
+    if (cleaned.length !== 11) { return cpf; }
+    return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
-function renderPaymentsModal() {
-    const container = document.getElementById('payment-list');
-    if (!container) return;
-
-    container.innerHTML = userData.paymentMethods.map(card => `
-        <div class="p-4 border border-gray-200 rounded-lg flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                <div>
-                    <p class="font-semibold text-gray-800">${card.type} terminado em •••• ${card.last4}</p>
-                    <p class="text-sm text-gray-500">Validade: ${card.expiry}</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 text-sm font-medium">
-                <button class="text-blue-600 hover:underline edit-payment-btn" data-payment-id="${card.id}">Editar</button>
-                <button class="text-red-500 hover:underline delete-payment-btn" data-payment-id="${card.id}">Remover</button>
-            </div>
-        </div>
-    `).join('');
+/**
+ * Formata uma string de telefone (apenas números) para (XX) XXXXX-XXXX ou (XX) XXXX-XXXX.
+ */
+function formatPhone(phone) {
+    const cleaned = ('' + phone).replace(/\D/g, '');
+    
+    // Checa se é um celular (11 dígitos)
+    if (cleaned.length === 11) {
+        return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    // Checa se é um telefone fixo (10 dígitos)
+    if (cleaned.length === 10) {
+        return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    
+    // Se não for nenhum dos dois, retorna o valor original
+    return phone; 
 }
 
-function renderOrdersModal() {
-    const container = document.getElementById('orders-list');
-    if (!container) return;
-
-    container.innerHTML = userData.orders.map(order => `
-        <div class="p-4 border border-gray-200 rounded-lg shadow-sm">
-            <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-3 gap-2">
-                <div>
-                    <p class="font-bold text-lg text-gray-800">Pedido #${order.id}</p>
-                    <p class="text-sm text-gray-500">Realizado em: ${order.date}</p>
-                </div>
-                <div class="text-right">
-                    <p class="font-semibold text-gray-700">Total: ${order.total}</p>
-                    <span class="text-sm font-medium ${order.status === 'Entregue' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'} px-2 py-1 rounded-full">${order.status}</span>
-                </div>
-            </div>
-
-            <div class="flex gap-4 overflow-x-auto py-2">
-                ${order.items.map(item => `
-                    <div class="flex-shrink-0 w-28 text-center">
-                        <img src="${item.coverImage}" alt="${item.title}" class="w-20 h-28 object-cover rounded-md mx-auto">
-                        <p class="text-xs mt-2 text-gray-600 line-clamp-2" title="${item.title}">${item.title}</p>
-                        <p class="text-xs text-gray-500">Qtd: ${item.quantity}</p>
-                    </div>
-                `).join('')}
-            </div>
-
-            <div class="mt-3 pt-3 border-t text-sm">
-                <p class="font-semibold text-gray-700">Código de Rastreamento:</p>
-                <p class="text-blue-600 font-mono">${order.trackingCode}</p>
-            </div>
-        </div>
-    `).join('');
+function isValidEmail(email) {
+    if (typeof email !== 'string' || email.trim() === '') { return false; }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
 }
 
-function renderDataModal() {
-    document.getElementById('edit-name').value = userData.name;
-    document.getElementById('edit-email').value = userData.email;
-    document.getElementById('edit-phone').value = userData.phone;
-    document.getElementById('edit-birthdate').value = userData.birthDate;
-    document.getElementById('edit-cpf').value = userData.cpf;
+function isValidCPF(cpf) {
+    cpf = ('' + cpf).replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let sum = 0, rest;
+    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    rest = (sum * 10) % 11;
+    if ((rest === 10) || (rest === 11)) rest = 0;
+    if (rest !== parseInt(cpf.substring(9, 10))) return false;
+    sum = 0;
+    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    rest = (sum * 10) % 11;
+    if ((rest === 10) || (rest === 11)) rest = 0;
+    if (rest !== parseInt(cpf.substring(10, 11))) return false;
+    return true;
 }
+
+function isValidBirthdate(dateString) {
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const parts = dateString.match(regex);
+    if (!parts) return false; 
+    const [, day, month, year] = parts.map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    if (birthDate.getFullYear() !== year || birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) return false;
+    if (year < 1900) return false;
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return birthDate <= eighteenYearsAgo;
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('profile-pic').src = userData.profilePicture;
-    document.getElementById('profile-name').textContent = userData.name;
-    document.getElementById('profile-email').textContent = userData.email;
-    document.getElementById('profile-phone').textContent = userData.phone;
-    document.getElementById('profile-birthdate').textContent = userData.birthDate;
-    document.getElementById('profile-cpf').textContent = userData.cpf;
     
+    // --- VERIFICAÇÃO DE LOGIN E BUSCA DE DADOS ---
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        alert('Você precisa estar logado para acessar esta página.');
+        window.location.href = './login.html';
+        return; 
+    }
+
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/api/users/profile', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+
+            if (!response.ok) {
+                localStorage.removeItem('authToken'); 
+                throw new Error('Sua sessão expirou. Por favor, faça login novamente.');
+            }
+
+            const userData = await response.json();
+            renderProfileData(userData); 
+
+        } catch (error) {
+            console.error('Erro ao buscar perfil:', error);
+            alert(error.message);
+            window.location.href = './login.html';
+        }
+    }
+
+    // --- RENDERIZAÇÃO ---
+    function renderProfileData(user) {
+        document.getElementById('profile-pic').src = user.profilePicture || 'https://i.stack.imgur.com/34AD2.jpg';
+        document.getElementById('profile-name').textContent = user.name || 'Não informado';
+        document.getElementById('profile-email').textContent = user.email || 'Não informado';
+        document.getElementById('profile-phone').textContent = user.phone ? formatPhone(user.phone) : 'Não informado';
+        document.getElementById('profile-birthdate').textContent = user.birthDate || 'Não informado';
+        document.getElementById('profile-cpf').textContent = user.cpf ? formatCPF(user.cpf) : 'Não informado';
+
+        // Preenche o formulário de edição no modal, incluindo a foto
+        document.getElementById('edit-name').value = user.name || '';
+        document.getElementById('edit-profilePicture').value = user.profilePicture || '';
+        document.getElementById('edit-email').value = user.email || '';
+        document.getElementById('edit-phone').value = user.phone || '';
+        document.getElementById('edit-birthdate').value = user.birthDate || '';
+        
+        const cpfInput = document.getElementById('edit-cpf');
+        if (user.cpf) {
+            cpfInput.value = user.cpf;
+            cpfInput.disabled = true; 
+            cpfInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+        } else {
+            cpfInput.value = '';
+            cpfInput.disabled = false; 
+            cpfInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        }
+    }
+
+    // --- LÓGICA DE MODAIS ---
     document.querySelectorAll('[data-modal]').forEach(button => {
         button.addEventListener('click', () => {
             const modalId = button.dataset.modal;
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            if (!modal.dataset.rendered) {
-                if (modalId === 'address-modal') renderAddressesModal();
-                if (modalId === 'payment-modal') renderPaymentsModal();
-                if (modalId === 'orders-modal') renderOrdersModal();
-                if (modalId === 'data-modal') renderDataModal();
-                modal.dataset.rendered = 'true';
+            if (['payment-modal', 'address-modal', 'orders-modal'].includes(modalId)) {
+                alert('Funcionalidade ainda não implementada.');
+                return;
             }
-            
-            modal.classList.remove('hidden');
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
         });
     });
 
@@ -122,65 +148,124 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const addressModal = document.getElementById('address-modal');
-    if (addressModal) {
-        addressModal.addEventListener('click', (event) => {
-            const target = event.target;
-            
-            if (target.matches('.delete-address-btn')) {
-                const addressId = target.dataset.addressId;
-                if (confirm('Tem certeza que deseja remover este endereço?')) {
-                    alert(`Endereço com ID ${addressId} removido! (Simulado)`);
-                }
-            }
-            if (target.matches('.edit-address-btn')) {
-                const addressId = target.dataset.addressId;
-                alert(`Editar endereço com ID ${addressId}! (Simulado)`);
-            }
+    // --- MÁSCARAS E VALIDAÇÕES DE INPUT ---
+    const editPhoneInput = document.getElementById('edit-phone');
+    if (editPhoneInput) {
+        new Cleave(editPhoneInput, {
+            delimiters: ['(', ') ', '-'],
+            blocks: [0, 2, 5, 4],
+            numericOnly: true
         });
     }
 
-    const paymentModal = document.getElementById('payment-modal');
-    if (paymentModal) {
-        paymentModal.addEventListener('click', (event) => {
-            const target = event.target;
-            
-            if (target.matches('.delete-payment-btn')) {
-                const paymentId = target.dataset.paymentId;
-                if (confirm('Tem certeza que deseja remover esta forma de pagamento?')) {
-                    alert(`Cartão com ID ${paymentId} removido! (Simulado)`);
-                }
-            }
-            if (target.matches('.edit-payment-btn')) {
-                const paymentId = target.dataset.paymentId;
-                alert(`Editar cartão com ID ${paymentId}! (Simulado)`);
-            }
+    const editBirthdateInput = document.getElementById('edit-birthdate');
+    if (editBirthdateInput) {
+        new Cleave(editBirthdateInput, {
+            date: true,
+            datePattern: ['d', 'm', 'Y']
         });
     }
 
+    const editCpfInput = document.getElementById('edit-cpf');
+    if (editCpfInput) {
+        editCpfInput.addEventListener('input', () => {
+            let value = editCpfInput.value.replace(/\D/g, '');
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            editCpfInput.value = value;
+        }); 
+    }
+
+    // --- LÓGICA DE ATUALIZAR E DELETAR PERFIL ---
     const editProfileForm = document.getElementById('edit-profile-form');
     if (editProfileForm) {
-        editProfileForm.addEventListener('submit', (event) => {
+        editProfileForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const newName = document.getElementById('edit-name').value;
-            const newEmail = document.getElementById('edit-email').value;
-            const newPhone = document.getElementById('edit-phone').value;
-            const newBirthdate = document.getElementById('edit-birthdate').value;
+            const emailValue = document.getElementById('edit-email').value;
+            const cpfInput = document.getElementById('edit-cpf');
+            const cpfValue = cpfInput.value;
+            const birthdateValue = document.getElementById('edit-birthdate').value; 
 
-            userData.name = newName;
-            userData.email = newEmail;
-            userData.phone = newPhone;
-            userData.birthDate = newBirthdate;
+            // Validação no momento do submit
+            if (!isValidEmail(emailValue)) {
+                alert('Por favor, insira um endereço de email válido.');
+                return;
+            }
+            if (!cpfInput.disabled && cpfValue.length > 0 && !isValidCPF(cpfValue)) {
+                alert('O CPF inserido não é válido.');
+                return; 
+            }
+            if (!cpfInput.disabled && cpfValue.length > 0 && cpfValue.length !== 11) {
+                alert('O CPF precisa ter exatamente 11 dígitos.');
+                return;
+            }
+            if (birthdateValue.trim() !== '' && !isValidBirthdate(birthdateValue)) {
+                alert('Por favor, insira uma data de nascimento válida e certifique-se de que você tem mais de 18 anos.');
+                return;
+            }
             
-            alert('Dados atualizados com sucesso! (Simulado)');
-            document.getElementById('data-modal').classList.add('hidden');
+            const updatedData = {
+                name: document.getElementById('edit-name').value,
+                profilePicture: document.getElementById('edit-profilePicture').value,
+                email: emailValue,
+                phone: document.getElementById('edit-phone').value.replace(/\D/g, ''),
+                birthDate: birthdateValue,
+                cpf: cpfValue
+            };
+            
+            try {
+                const response = await fetch('/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
 
-            document.getElementById('profile-name').textContent = newName;
-            document.getElementById('profile-email').textContent = newEmail;
-            document.getElementById('profile-phone').textContent = newPhone;
-            document.getElementById('profile-birthdate').textContent = newBirthdate;
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Falha ao atualizar o perfil.');
+                }
+
+                alert('Perfil atualizado com sucesso!');
+                document.getElementById('data-modal').classList.add('hidden');
+                loadUserProfile(); 
+
+            } catch (error) {
+                console.error('Erro ao atualizar perfil:', error);
+                alert(`Erro: ${error.message}`);
+            }
         });
     }
-    initializeProfileDropdown();
+
+    const deleteBtn = document.getElementById('delete-account-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            if (!confirm('ATENÇÃO: Esta ação é irreversível. Você tem certeza que deseja deletar sua conta?')) {
+                return;
+            }
+            try {
+                const response = await fetch('/api/users/profile', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Falha ao deletar a conta.');
+                }
+                logout();
+            } catch (error) {
+                console.error('Erro ao deletar conta:', error);
+                alert(`Erro: ${error.message}`);
+            }
+        });
+    }
+
+    // --- INICIALIZAÇÃO ---
+    initializeGlobalUI();
+    loadUserProfile(); 
 });

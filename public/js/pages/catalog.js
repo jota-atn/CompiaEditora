@@ -7,8 +7,8 @@ import {
     setupBackToTopButton,
     setupFilters,
     setupSidebars,
-    initializeProfileDropdown
 } from '../ui.js';
+import { logout } from '../auth.js';
 
 function renderBooksGrid(books) {
     const booksGrid = document.getElementById('books-grid');
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCartUI();
     setupSidebars();
     setupBackToTopButton();
-    initializeProfileDropdown();
+
     
     //Puxar livros da API
     await fetchAllBooks();

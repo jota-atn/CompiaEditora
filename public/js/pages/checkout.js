@@ -255,5 +255,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     updateAddressSummary();
     toggleConfirmButton();
-    initializeProfileDropdown();
+    initializeGlobalUI()
 });

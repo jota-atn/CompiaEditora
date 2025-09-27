@@ -1,13 +1,8 @@
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByEmail } from '../database/database.js';
-
-//Chave Secreta para o JWT
-// Em um projeto real, isso NUNCA deve estar no código.
-// Deve vir de uma variável de ambiente (process.env.JWT_SECRET)
-// Por motivos de simplicidade ficara assim
-const JWT_SECRET = 'seu-segredo-super-secreto';
+import { createUser, findUserByEmail, findUserById, updateUser, deleteUser } from '../database/database.js';
+import { JWT_SECRET } from '../config.js';
 
 /**
  * Registra um novo usuário.
@@ -15,16 +10,19 @@ const JWT_SECRET = 'seu-segredo-super-secreto';
 export const register = (req, res) => {
     const { name, email, password } = req.body;
 
-    // Validação simples
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Nome, email e senha são obrigatórios.' });
     }
 
-    const newUser = { name, email, password };
+    const newUser = { 
+        name, 
+        email, 
+        password,
+        profilePicture: '/images/default-profile.png'
+    };
 
     createUser(newUser, (err, user) => {
         if (err) {
-            // Verifica se o erro é de email duplicado (UNIQUE constraint)
             if (err.message.includes('UNIQUE constraint failed: users.email')) {
                 return res.status(409).json({ message: 'Este email já está cadastrado.' });
             }
@@ -46,24 +44,14 @@ export const login = (req, res) => {
 
     findUserByEmail(email, (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
-        
-        // Se o usuário não for encontrado
-        if (!user) {
-            return res.status(401).json({ message: 'Credenciais inválidas.' }); // 401 Unauthorized
-        }
+        if (!user) return res.status(401).json({ message: 'Credenciais inválidas.' });
 
-        // Compara a senha enviada com a senha criptografada no banco
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) return res.status(500).json({ error: err.message });
+            if (!isMatch) return res.status(401).json({ message: 'Credenciais inválidas.' });
             
-            // Se as senhas não baterem
-            if (!isMatch) {
-                return res.status(401).json({ message: 'Credenciais inválidas.' }); // 401 Unauthorized
-            }
-            
-            // Se as senhas baterem, cria o token JWT
             const payload = { id: user.id, email: user.email };
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token expira em 1 hora
+            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
             res.status(200).json({
                 message: 'Login bem-sucedido!',
@@ -71,5 +59,59 @@ export const login = (req, res) => {
                 user: { id: user.id, name: user.name, email: user.email }
             });
         });
+    });
+};
+
+/**
+ * Busca o perfil do usuário logado.
+ */
+export const getUserProfile = (req, res) => {
+    const userId = req.user.id; 
+
+    findUserById(userId, (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+        
+        res.status(200).json(user);
+    });
+};
+
+/**
+ * Atualiza o perfil do usuário logado.
+ */
+export const updateUserProfile = (req, res) => {
+    const userId = req.user.id;
+    const userData = req.body;
+
+    updateUser(userId, userData, (err, success) => {
+        if (err) {
+            // Se o erro for de CPF duplicado
+            if (err.message.includes('UNIQUE constraint failed: users.cpf')) {
+                return res.status(409).json({ message: 'Este CPF já está em uso por outra conta.' }); // 409 Conflict
+            }
+            // Se o erro for de email duplicado
+            if (err.message.includes('UNIQUE constraint failed: users.email')) {
+                return res.status(409).json({ message: 'Este email já está em uso por outra conta.' });
+            }
+            // Para outros erros genéricos de banco
+            return res.status(500).json({ error: err.message });
+        }
+        if (!success) return res.status(404).json({ message: 'Usuário não encontrado para atualizar.' });
+
+        res.status(200).json({ message: 'Perfil atualizado com sucesso!' });
+    });
+};
+
+/**
+ * Deleta o perfil do usuário logado.
+ */
+export const deleteUserProfile = (req, res) => {
+    const userId = req.user.id;
+
+    deleteUser(userId, (err, success) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!success) return res.status(404).json({ message: 'Usuário não encontrado para deletar.' });
+
+        res.status(200).json({ message: 'Usuário deletado com sucesso.' });
     });
 };
