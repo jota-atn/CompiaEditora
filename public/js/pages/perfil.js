@@ -1,4 +1,5 @@
 import { initializeGlobalUI } from '../ui.js';
+import { updateCartUI } from '../cart.js';
 import { logout } from '../auth.js';
 
 function showToast(message, type = 'success') {
@@ -276,5 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initializeGlobalUI();
+    updateCartUI();
     loadUserProfile();
 });
