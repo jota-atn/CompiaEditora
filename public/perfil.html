@@ -104,10 +104,6 @@
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Gerenciar Conta</h2>
                     <div class="space-y-4">
-                        <button data-modal="payment-modal" class="profile-action-btn">
-                            <span>Formas de Pagamento</span>
-                            <span class="text-gray-400">&rarr;</span>
-                        </button>
                         <button data-modal="address-modal" class="profile-action-btn">
                             <span>Endereços</span>
                             <span class="text-gray-400">&rarr;</span>
@@ -131,21 +127,6 @@
             <p>&copy; 2025 COMPIA Editora. Todos os direitos reservados.</p>
         </div>
     </footer>
-
-    <div id="payment-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="modal-title mb-0">Formas de Pagamento</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div id="payment-list" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
-            <div class="mt-6 border-t pt-4">
-                <button id="add-new-payment-btn" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
-                    Adicionar Novo Cartão
-                </button>
-            </div>
-        </div>
-    </div>
 
     <div id="address-modal" class="modal-overlay hidden">
         <div class="modal-content">
