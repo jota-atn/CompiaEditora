@@ -1,6 +1,7 @@
 import { debounce, initializeProfileDropdown, initializePixModal } from '../ui.js';
 import { calcularFrete } from '../services/freteService.js';
- import { criarCobrancaPix } from '../services/pagamentoService.js'
+import { criarCobrancaPix } from '../services/pagamentoService.js';
+import { getUserProfile } from '../services/userService.js';
 
 const PACKAGE_DEFAULTS = {
     BOOK_WEIGHT_KG: 0.5,
@@ -11,11 +12,6 @@ const PACKAGE_DEFAULTS = {
     PACKAGE_LENGTH_CM: 23,
 };
 
-/**
- * Converte uma string de moeda BRL (ex: "R$ 123,45") para um número inteiro de centavos.
- * @param {string} brlString - A string de moeda a ser convertida.
- * @returns {number} O valor em centavos (ex: 12345).
- */
 const parseBRLToCents = (brlString) => {
     if (typeof brlString !== 'string') return 0;
     const cleanedString = brlString.replace('R$ ', '').replace(/\./g, '');
@@ -60,8 +56,23 @@ const setupInputMasks = () => {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const openPixModal = initializePixModal();
+
+    let currentUser = null;
+    try {
+        currentUser = await getUserProfile();
+        // Pré-preenche o campo de nome no cartão com o nome do usuário
+        const cardNameInput = document.getElementById('card-name');
+        if (cardNameInput && currentUser.name) {
+            cardNameInput.value = currentUser.name;
+        }
+    } catch (error) {
+        console.error(error.message);
+        alert(error.message);
+        window.location.href = './login.html'; // Redireciona para o login se não estiver autenticado
+        return; // Para a execução do script
+    }
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const realBooks = cart.filter(book => book.format !== 'E-book');
@@ -267,8 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmBtn.addEventListener('click', async () => {
         if(checkFormValidity()) {
-            // Troque o alert antigo por esta nova lógica
             try {
+                if (!currentUser) {
+                    alert('Erro ao carregar dados do usuário. Por favor, tente recarregar a página.');
+                    return;
+                }
+
                 const totalText = totalEl.textContent;
                 const totalInCents = parseBRLToCents(totalText);
                 
@@ -276,25 +291,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("O valor total do pedido não pode ser zero.");
                     return;
                 }
-                // Coleta os dados necessários para a cobrança PIX
-                // Adapte os IDs se os campos do seu formulário forem diferentes
-                console.log(total);
+                
                 const dadosParaCobranca = {
-                    amount: totalInCents, // ATENÇÃO: Pegue o valor total real do pedido
-                    expiresIn: 300, // 5 minutos
+                    amount: totalInCents,
+                    expiresIn: 300,
                     description: "Compra na COMPIA Editora",
-                    name: document.querySelector('input[placeholder="Nome Completo"]').value, // Tá pegando do formulário de cartão de crédito (PRECISA CRIAR/TROCAS DE CRÉDITO PARA INFORMAÇÕES DE PAGAMENTO)
-                    cellphone: '83999999999', // Adicionar campo de telefone
-                    email: 'cliente@email.com', // adicionar campo de e-mail
-                    taxId: '52998224725' // Adicionar campo de cpf (TEM QUE VER ISSO SE PODE OU NÃO :())
+                    name: currentUser.name,
+                    cellphone: currentUser.phone, // Adicionar campo de telefone
+                    email: currentUser.email, // adicionar campo de e-mail
+                    taxId: currentUser.cpf // Adicionar campo de cpf (TEM QUE VER ISSO SE PODE OU NÃO :())
                 };
 
-                console.log("Gerando PIX...");
-                // Chama a API para criar a cobrança
+                if (!dadosParaCobranca.name || !dadosParaCobranca.taxId || !dadosParaCobranca.cellphone) {
+                    alert('Seu perfil está incompleto. Por favor, preencha seu nome, CPF e telefone na página de perfil antes de continuar.');
+                    window.location.href = './perfil.html'; // Redireciona para a página de perfil
+                    return;
+                }
+
                 const resultadoPix = await criarCobrancaPix(dadosParaCobranca);
 
-                console.log("PIX gerado:", resultadoPix);
-                // Abre o modal com os dados recebidos
                 openPixModal(resultadoPix.data.brCodeBase64, resultadoPix.data.brCode);
 
             } catch (error) {
@@ -307,3 +322,4 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleConfirmButton();
     initializeGlobalUI()
 });
+

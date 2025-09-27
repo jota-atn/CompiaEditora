@@ -39,13 +39,3 @@ export const calcularFrete = async (dadosDoPacote) => {
         throw error;
     }
 }
-
-//exemplo de uso, como no cepService:
-const dadosExemplos = {
-  to_postal_code: "01311000",
-  weight: 0.5,
-  width: 16,
-  height: 4,
-  length: 23
-};
-calcularFrete(dadosExemplos).then(valor => console.log(valor)).catch(erro => console.log(erro));
