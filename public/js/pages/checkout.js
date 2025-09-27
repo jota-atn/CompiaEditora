@@ -23,55 +23,17 @@ const parseBRLToCents = (brlString) => {
     return Math.round(valueInReais * 100);
 }
 
-const setupInputMasks = () => {
-    const cardNumberEl = document.getElementById('card-number');
-    const cardExpiryEl = document.getElementById('card-expiry');
-    const cardCvcEl = document.getElementById('card-cvc');
-
-    if (typeof Cleave === 'undefined') {
-        console.error('A biblioteca Cleave.js não foi carregada.');
-        return;
-    }
-
-    if (cardNumberEl) {
-        new Cleave(cardNumberEl, {
-            blocks: [4, 4, 4, 4],
-            delimiter: ' ',
-            numericOnly: true
-        });
-    }
-
-    if (cardExpiryEl) {
-        new Cleave(cardExpiryEl, {
-            date: true,
-            datePattern: ['m', 'y']
-        });
-    }
-
-    if (cardCvcEl) {
-        new Cleave(cardCvcEl, {
-            blocks: [3],
-            numericOnly: true
-        });
-    }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     const openPixModal = initializePixModal();
 
     let currentUser = null;
     try {
         currentUser = await getUserProfile();
-        // Pré-preenche o campo de nome no cartão com o nome do usuário
-        const cardNameInput = document.getElementById('card-name');
-        if (cardNameInput && currentUser.name) {
-            cardNameInput.value = currentUser.name;
-        }
     } catch (error) {
         console.error(error.message);
         alert(error.message);
-        window.location.href = './login.html'; // Redireciona para o login se não estiver autenticado
-        return; // Para a execução do script
+        window.location.href = './login.html';
+        return;
     }
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -89,13 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         bairro: document.querySelector('input[placeholder="Bairro"]'),
         cidade: document.querySelector('input[placeholder="Cidade"]'),
         estado: document.querySelector('input[placeholder="Estado"]'),
-    };
-
-    const paymentInputs = {
-        number: document.getElementById('card-number'),
-        name: document.getElementById('card-name'),
-        expiry: document.getElementById('card-expiry'),
-        cvc: document.getElementById('card-cvc'),
     };
 
     const confirmBtn = document.getElementById('confirm-order-btn');
@@ -154,8 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    setupInputMasks();
-
     const updateFinancialSummary = (shippingCost) => {
         const freteValido = typeof shippingCost === 'number' && shippingCost >= 0;
         const custoFrete = freteValido ? shippingCost : 0;
@@ -173,6 +126,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const isShippingValid = () => {
         const shipping = shippingEl.textContent;
+        console.log("shipping: ");
+        console.log(shipping);
         return shipping !== 'A calcular...' && shipping !== 'Calculando...' && shipping !== 'Indisponível';
     };
 
@@ -225,14 +180,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const checkFormValidity = () => {
         const isAddressValid = isAddressComplete() || realBooks.length === 0;
-
-        const isPaymentValid = Object.values(paymentInputs)
-            .every(input => input.value.trim() !== '');
-
-        return isAddressValid && isPaymentValid;
+        return isAddressValid;
     };
-
+    
     const toggleConfirmButton = () => {
+        console.log(checkFormValidity());
+        console.log(isShippingValid());
         if (checkFormValidity() && isShippingValid()) {
             confirmBtn.disabled = false;
             confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -258,21 +211,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             summaryAddressEl.textContent = 'Por favor, preencha seu endereço.';
         }
     };
-    
-    const allInputs = [...Object.values(addressInputs), ...Object.values(paymentInputs)];
 
-    allInputs.forEach(input => {
+    Object.values(addressInputs).forEach(input => {
         if (input) {
-            const isAddressField = Object.values(addressInputs).includes(input);
-            const debounceTime = isAddressField ? 500 : 300; 
-
-            input.addEventListener('input', debounce(() => {
+            input.addEventListener('input', debounce(async () => {
+                updateAddressSummary();
+                await handleShippingCalculation();
                 toggleConfirmButton();
-                if (isAddressField) {
-                    updateAddressSummary();
-                    handleShippingCalculation(); 
-                }
-            }, debounceTime));
+            }, 500));
         }
     });
 
@@ -297,19 +243,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     expiresIn: 300,
                     description: "Compra na COMPIA Editora",
                     name: currentUser.name,
-                    cellphone: currentUser.phone, // Adicionar campo de telefone
-                    email: currentUser.email, // adicionar campo de e-mail
-                    taxId: currentUser.cpf // Adicionar campo de cpf (TEM QUE VER ISSO SE PODE OU NÃO :())
+                    cellphone: currentUser.phone,
+                    email: currentUser.email,
+                    taxId: currentUser.cpf
                 };
 
                 if (!dadosParaCobranca.name || !dadosParaCobranca.taxId || !dadosParaCobranca.cellphone) {
                     alert('Seu perfil está incompleto. Por favor, preencha seu nome, CPF e telefone na página de perfil antes de continuar.');
-                    window.location.href = './perfil.html'; // Redireciona para a página de perfil
+                    window.location.href = './perfil.html';
                     return;
                 }
 
                 const resultadoPix = await criarCobrancaPix(dadosParaCobranca);
-
                 openPixModal(resultadoPix.data.brCodeBase64, resultadoPix.data.brCode);
 
             } catch (error) {
