@@ -56,9 +56,7 @@
                             <a href="perfil.html" class="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-200">
                                 Meus Dados
                             </a>
-                            <a href="#" id="logout-btn" class="block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">
-                                Sair
-                            </a>
+                            <a href="#" class="logout-btn block px-4 py-3 text-sm text-red-600 hover:bg-slate-200 font-medium">Sair</a>
                         </div>
                     </div>
                 </div>
@@ -98,22 +96,11 @@
                 <section>
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Forma de Pagamento</h2>
                     <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div>
-                            <label for="card-number" class="block text-sm font-medium text-gray-700">Número do Cartão</label>
-                            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" inputmode="numeric" autocomplete="cc-number" class="w-full mt-1 p-2 border rounded-md">
-                        </div>
-                        <div>
-                            <label for="card-name" class="block text-sm font-medium text-gray-700">Nome no Cartão</label>
-                            <input type="text" id="card-name" placeholder="Nome Completo" autocomplete="cc-name" class="w-full mt-1 p-2 border rounded-md">
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="w-1/2">
-                                <label for="card-expiry" class="block text-sm font-medium text-gray-700">Validade</label>
-                                <input type="text" id="card-expiry" placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp" class="w-full mt-1 p-2 border rounded-md">
-                            </div>
-                            <div class="w-1/2">
-                                <label for="card-cvc" class="block text-sm font-medium text-gray-700">CVC</label>
-                                <input type="text" id="card-cvc" placeholder="123" inputmode="numeric" autocomplete="cc-csc" class="w-full mt-1 p-2 border rounded-md">
+                        <div class="flex items-center space-x-4">
+                            <img src="https://logopng.com.br/logos/pix-106.svg" alt="Ícone do PIX" class="w-10 h-10">
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800">PIX</h3>
+                                <p class="text-gray-600">O QR Code para pagamento será gerado ao final do pedido.</p>
                             </div>
                         </div>
                     </div>
@@ -151,6 +138,37 @@
 
         </div>
     </main>
+
+    <div id="pix-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div id="pix-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-sm w-full mx-auto relative transform scale-95 transition-transform duration-300 text-center">
+            
+            <button id="close-pix-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Pague com PIX</h2>
+            <p class="text-gray-600 mb-6">Escaneie o QR Code abaixo com o app do seu banco para pagar.</p>
+            
+            <div class="flex justify-center mb-6">
+                <img id="pix-qrcode-image" src="" alt="QR Code PIX" class="w-48 h-48 rounded-lg bg-gray-200">
+            </div>
+
+            <p class="text-gray-600 mb-2 text-sm">Ou use o código Copia e Cola:</p>
+
+            <div class="flex items-center border-2 border-gray-200 rounded-lg p-1">
+                <input id="pix-copy-paste-code" type="text" readonly class="flex-grow bg-transparent border-none text-gray-700 text-sm focus:ring-0 p-2" value="Aguardando código PIX...">
+                <button id="copy-pix-code-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors text-sm">
+                    Copiar
+                </button>
+            </div>
+            
+            <div class="mt-8">
+                <button id="pix-confirmed-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                    Já paguei, concluir pedido!
+                </button>
+            </div>
+        </div>
+    </div>
     
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-4 text-center text-gray-400">

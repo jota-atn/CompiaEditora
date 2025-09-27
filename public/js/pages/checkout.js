@@ -1,43 +1,47 @@
-import { debounce, initializeProfileDropdown } from '../ui.js';
+import { debounce, initializeProfileDropdown, initializePixModal } from '../ui.js';
+import { calcularFrete } from '../services/freteService.js';
+import { criarCobrancaPix } from '../services/pagamentoService.js';
+import { getUserProfile } from '../services/userService.js';
 
-function setupInputMasks() {
-    const cardNumberEl = document.getElementById('card-number');
-    const cardExpiryEl = document.getElementById('card-expiry');
-    const cardCvcEl = document.getElementById('card-cvc');
+const PACKAGE_DEFAULTS = {
+    BOOK_WEIGHT_KG: 0.5,
+    BOOK_THICKNESS_CM: 3,
+    MIN_WEIGHT_KG: 0.3,
+    MIN_HEIGHT_CM: 2,
+    PACKAGE_WIDTH_CM: 16,
+    PACKAGE_LENGTH_CM: 23,
+};
 
-    if (typeof Cleave === 'undefined') {
-        console.error('A biblioteca Cleave.js não foi carregada.');
+const parseBRLToCents = (brlString) => {
+    if (typeof brlString !== 'string') return 0;
+    const cleanedString = brlString.replace('R$ ', '').replace(/\./g, '');
+    const dotDecimalString = cleanedString.replace(',', '.');
+    const valueInReais = parseFloat(dotDecimalString);
+    if (isNaN(valueInReais)) {
+        return 0;
+    }
+    return Math.round(valueInReais * 100);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const openPixModal = initializePixModal();
+
+    let currentUser = null;
+    try {
+        currentUser = await getUserProfile();
+    } catch (error) {
+        console.error(error.message);
+        alert(error.message);
+        window.location.href = './login.html';
         return;
     }
 
-    if (cardNumberEl) {
-        new Cleave(cardNumberEl, {
-            blocks: [4, 4, 4, 4],
-            delimiter: ' ',
-            numericOnly: true
-        });
-    }
-
-    if (cardExpiryEl) {
-        new Cleave(cardExpiryEl, {
-            date: true,
-            datePattern: ['m', 'y']
-        });
-    }
-
-    if (cardCvcEl) {
-        new Cleave(cardCvcEl, {
-            blocks: [3],
-            numericOnly: true
-        });
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const realBooks = cart.filter(book => book.format !== 'E-book');
     
     const subtotalEl = document.getElementById('summary-subtotal');
     const totalEl = document.getElementById('summary-total');
+    const shippingEl = document.getElementById('summary-shipping');
     const summaryAddressEl = document.getElementById('summary-address');
 
     const addressInputs = {
@@ -47,13 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bairro: document.querySelector('input[placeholder="Bairro"]'),
         cidade: document.querySelector('input[placeholder="Cidade"]'),
         estado: document.querySelector('input[placeholder="Estado"]'),
-    };
-
-    const paymentInputs = {
-        number: document.getElementById('card-number'),
-        name: document.getElementById('card-name'),
-        expiry: document.getElementById('card-expiry'),
-        cvc: document.getElementById('card-cvc'),
     };
 
     const confirmBtn = document.getElementById('confirm-order-btn');
@@ -83,9 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
     
     const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shipping = 15.00;
+    const shipping = 0.00;
     const total = subtotal + shipping;
     subtotalEl.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    shippingEl.textContent = realBooks.length === 0 ? `R$ ${shipping.toFixed(2).replace('.', ',')}` : 'A calcular...';
     totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 
     new Swiper('.checkout-swiper', {
@@ -111,20 +109,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    setupInputMasks();
+    const updateFinancialSummary = (shippingCost) => {
+        const freteValido = typeof shippingCost === 'number' && shippingCost >= 0;
+        const custoFrete = freteValido ? shippingCost : 0;
 
-    const checkFormValidity = () => {
-        const isAddressValid = Object.entries(addressInputs)
+        shippingEl.textContent = freteValido || realBooks.length === 0 ? `R$ ${custoFrete.toFixed(2).replace('.', ',')}` : 'Indisponível';
+        
+        const total = subtotal + custoFrete;
+        totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    const isAddressComplete = () => {
+        return Object.entries(addressInputs)
             .every(([key, input]) => input.placeholder.includes('Opcional') || input.value.trim() !== '');
-
-        const isPaymentValid = Object.values(paymentInputs)
-            .every(input => input.value.trim() !== '');
-
-        return isAddressValid && isPaymentValid;
     };
 
+    const isShippingValid = () => {
+        const shipping = shippingEl.textContent;
+        return shipping !== 'A calcular...' && shipping !== 'Calculando...' && shipping !== 'Indisponível';
+    };
+
+    function getPackageDetails(physicalItems) {
+        const totalWeight = physicalItems.reduce((acc, item) => acc + (item.quantity * PACKAGE_DEFAULTS.BOOK_WEIGHT_KG), 0);
+        const stackedHeight = physicalItems.reduce((acc, item) => acc + (item.quantity * PACKAGE_DEFAULTS.BOOK_THICKNESS_CM), 0);
+        
+        return {
+            to_postal_code: addressInputs.cep.value.replace(/\D/g, ''),
+            weight: Math.max(totalWeight, PACKAGE_DEFAULTS.MIN_WEIGHT_KG),
+            width: PACKAGE_DEFAULTS.PACKAGE_WIDTH_CM,
+            length: PACKAGE_DEFAULTS.PACKAGE_LENGTH_CM,
+            height: Math.max(stackedHeight, PACKAGE_DEFAULTS.MIN_HEIGHT_CM),
+        };
+    }
+
+    const handleShippingCalculation = async () => {
+        if (realBooks == 0) {
+            shippingEl.textContent = 'R$ 0,00';
+            updateFinancialSummary(0);
+            return;
+        }
+
+        if (!isAddressComplete()) {
+            shippingEl.textContent = 'A calcular...';
+            updateFinancialSummary(null);
+            return;
+        }
+        
+        shippingEl.textContent = 'Calculando...';
+
+        try {
+            const freteOptions = await calcularFrete(getPackageDetails(realBooks));
+
+            if (freteOptions && freteOptions.length > 0) {
+                const freteOptionsValid = freteOptions.filter(option => Object.hasOwn(option, "price"));
+                const cheapestOption = freteOptionsValid.reduce((min, current) => 
+                    parseFloat(current.price) < parseFloat(min.price) ? current : min
+                );
+                updateFinancialSummary(parseFloat(cheapestOption.price));
+            } else {
+                updateFinancialSummary(null);
+            }
+        } catch (error) {
+            console.error("Erro ao calcular frete:", error);
+            shippingEl.textContent = 'Erro ao calcular';
+            updateFinancialSummary(null);
+        }
+    };
+
+    const checkFormValidity = () => {
+        const isAddressValid = isAddressComplete() || realBooks.length === 0;
+        return isAddressValid;
+    };
+    
     const toggleConfirmButton = () => {
-        if (checkFormValidity()) {
+        if (checkFormValidity() && isShippingValid()) {
             confirmBtn.disabled = false;
             confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         } else {
@@ -149,28 +207,60 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryAddressEl.textContent = 'Por favor, preencha seu endereço.';
         }
     };
-    
-    const allInputs = [...Object.values(addressInputs), ...Object.values(paymentInputs)];
 
-    allInputs.forEach(input => {
+    Object.values(addressInputs).forEach(input => {
         if (input) {
-            input.addEventListener('input', debounce(() => {
+            input.addEventListener('input', debounce(async () => {
+                updateAddressSummary();
+                await handleShippingCalculation();
                 toggleConfirmButton();
-                if (Object.values(addressInputs).includes(input)) {
-                    updateAddressSummary();
-                }
-            }, 300));
+            }, 500));
         }
     });
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
         if(checkFormValidity()) {
-            alert('Pedido confirmado com sucesso! Obrigado por comprar na COMPIA.');
-            localStorage.removeItem('cart');
-            window.location.href = './index.html';
-        }
+            try {
+                if (!currentUser) {
+                    alert('Erro ao carregar dados do usuário. Por favor, tente recarregar a página.');
+                    return;
+                }
+
+                const totalText = totalEl.textContent;
+                const totalInCents = parseBRLToCents(totalText);
+                
+                if (totalInCents <= 0) {
+                    alert("O valor total do pedido não pode ser zero.");
+                    return;
+                }
+                
+                const dadosParaCobranca = {
+                    amount: totalInCents,
+                    expiresIn: 300,
+                    description: "Compra na COMPIA Editora",
+                    name: currentUser.name,
+                    cellphone: currentUser.phone,
+                    email: currentUser.email,
+                    taxId: currentUser.cpf
+                };
+
+                if (!dadosParaCobranca.name || !dadosParaCobranca.taxId || !dadosParaCobranca.cellphone) {
+                    alert('Seu perfil está incompleto. Por favor, preencha seu nome, CPF e telefone na página de perfil antes de continuar.');
+                    window.location.href = './perfil.html';
+                    return;
+                }
+
+                const resultadoPix = await criarCobrancaPix(dadosParaCobranca);
+                openPixModal(resultadoPix.data.brCodeBase64, resultadoPix.data.brCode);
+
+            } catch (error) {
+                console.error("Erro ao gerar a cobrança PIX:", error);
+                alert(`Não foi possível gerar o PIX: ${error.message}`);
+            }
+        }   
     });
     updateAddressSummary();
     toggleConfirmButton();
-    initializeProfileDropdown();
+    initializeGlobalUI()
 });
+

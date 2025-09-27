@@ -1,5 +1,5 @@
-import { userData } from '../profileData.js';
-import { initializeProfileDropdown } from '../ui.js';
+import { initializeGlobalUI } from '../ui.js';
+import { logout } from '../auth.js';
 
 function showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
@@ -11,7 +11,7 @@ function showToast(message, type = 'success') {
     container.appendChild(toast);
     setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
     setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-x-full');
+        toast.classList.add('opacity-0', '-translate-x-full');
         toast.addEventListener('transitionend', () => toast.remove());
     }, 4000);
 }
@@ -28,10 +28,68 @@ function closeModal(modal) {
     modal.addEventListener('transitionend', () => modal.classList.add('hidden'), { once: true });
 }
 
-function renderAddressesModal() {
+
+function formatCPF(cpf) {
+    const cleaned = ('' + cpf).replace(/\D/g, '');
+    if (cleaned.length !== 11) { return cpf; }
+    return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function formatPhone(phone) {
+    const cleaned = ('' + phone).replace(/\D/g, '');
+    if (cleaned.length === 11) return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    if (cleaned.length === 10) return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    return phone;
+}
+
+function isValidEmail(email) {
+    if (typeof email !== 'string' || email.trim() === '') { return false; }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+}
+
+function isValidCPF(cpf) {
+    cpf = ('' + cpf).replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let sum = 0, rest;
+    for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    rest = (sum * 10) % 11;
+    if ((rest === 10) || (rest === 11)) rest = 0;
+    if (rest !== parseInt(cpf.substring(9, 10))) return false;
+    sum = 0;
+    for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    rest = (sum * 10) % 11;
+    if ((rest === 10) || (rest === 11)) rest = 0;
+    if (rest !== parseInt(cpf.substring(10, 11))) return false;
+    return true;
+}
+
+function isValidBirthdate(dateString) {
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const parts = dateString.match(regex);
+    if (!parts) return false;
+    const [, day, month, year] = parts.map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    if (birthDate.getFullYear() !== year || birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) return false;
+    if (year < 1900) return false;
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return birthDate <= eighteenYearsAgo;
+}
+
+function renderProfileData(user) {
+    document.getElementById('profile-pic').src = user.profilePicture || '/public/images/default-profile.png';
+    document.getElementById('profile-name').textContent = user.name || 'Não informado';
+    document.getElementById('profile-email').textContent = user.email || 'Não informado';
+    document.getElementById('profile-phone').textContent = user.phone ? formatPhone(user.phone) : 'Não informado';
+    document.getElementById('profile-birthdate').textContent = user.birthDate || 'Não informado';
+    document.getElementById('profile-cpf').textContent = user.cpf ? formatCPF(user.cpf) : 'Não informado';
+}
+
+function renderAddressesModal(addresses = []) {
     const container = document.getElementById('address-list');
     if (!container) return;
-    container.innerHTML = userData.addresses.map(addr => `
+    container.innerHTML = addresses.map(addr => `
         <div class="p-4 border rounded-lg ${addr.default ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}">
             <div class="flex justify-between items-start">
                 <div>
@@ -49,10 +107,10 @@ function renderAddressesModal() {
     `).join('');
 }
 
-function renderPaymentsModal() {
+function renderPaymentsModal(paymentMethods = []) {
     const container = document.getElementById('payment-list');
     if (!container) return;
-    container.innerHTML = userData.paymentMethods.map(card => `
+    container.innerHTML = paymentMethods.map(card => `
         <div class="p-4 border border-gray-200 rounded-lg flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
@@ -69,10 +127,10 @@ function renderPaymentsModal() {
     `).join('');
 }
 
-function renderOrdersModal() {
+function renderOrdersModal(orders = []) {
     const container = document.getElementById('orders-list');
     if (!container) return;
-    container.innerHTML = userData.orders.map(order => `
+    container.innerHTML = orders.map(order => `
         <div class="p-4 border border-gray-200 rounded-lg shadow-sm">
             <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-3 gap-2">
                 <div>
@@ -101,48 +159,47 @@ function renderOrdersModal() {
     `).join('');
 }
 
-function renderDataModal() {
-    document.getElementById('edit-name').value = userData.name;
-    document.getElementById('edit-email').value = userData.email;
-    document.getElementById('edit-phone').value = userData.phone;
-    document.getElementById('edit-birthdate').value = userData.birthDate;
-    document.getElementById('edit-cpf').value = userData.cpf;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('profile-pic').src = userData.profilePicture;
-    document.getElementById('profile-name').textContent = userData.name;
-    document.getElementById('profile-email').textContent = userData.email;
-    document.getElementById('profile-phone').textContent = userData.phone;
-    document.getElementById('profile-birthdate').textContent = userData.birthDate;
-    document.getElementById('profile-cpf').textContent = userData.cpf;
+    const token = localStorage.getItem('authToken');
+    let currentUserData = null; 
 
-    const profilePicContainer = document.getElementById('profile-pic-container');
-    const profilePicInput = document.getElementById('profile-pic-input');
-    if (profilePicContainer && profilePicInput) {
-        profilePicContainer.addEventListener('click', () => profilePicInput.click());
-        profilePicInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('profile-pic').src = e.target.result;
-                userData.profilePicture = e.target.result;
-                showToast('Foto de perfil atualizada!', 'success');
-            };
-            reader.readAsDataURL(file);
-        });
+    if (!token) {
+        alert('Você precisa estar logado para acessar esta página.');
+        window.location.href = './login.html';
+        return;
+    }
+
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/api/users/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                logout();
+                throw new Error('Sessão expirada. Faça login novamente.');
+            }
+            currentUserData = await response.json();
+            renderProfileData(currentUserData);
+            document.querySelectorAll('.modal-overlay[data-rendered]').forEach(modal => modal.removeAttribute('data-rendered'));
+        } catch (error) {
+            console.error('Erro ao buscar perfil:', error);
+            if (error.message.includes('Sessão expirada')) {
+                alert(error.message);
+            }
+            window.location.href = './login.html';
+        }
     }
 
     document.querySelectorAll('[data-modal]').forEach(button => {
         button.addEventListener('click', () => {
-            const modal = document.getElementById(button.dataset.modal);
+            const modalId = button.dataset.modal;
+            const modal = document.getElementById(modalId);
             if (!modal) return;
-            if (!modal.dataset.rendered) {
-                if (modal.id === 'address-modal') renderAddressesModal();
-                if (modal.id === 'payment-modal') renderPaymentsModal();
-                if (modal.id === 'orders-modal') renderOrdersModal();
-                if (modal.id === 'data-modal') renderDataModal();
+            
+            if (!modal.dataset.rendered && currentUserData) {
+                if (modal.id === 'address-modal') renderAddressesModal(currentUserData.addresses);
+                if (modal.id === 'payment-modal') renderPaymentsModal(currentUserData.paymentMethods);
+                if (modal.id === 'orders-modal') renderOrdersModal(currentUserData.orders);
                 modal.dataset.rendered = 'true';
             }
             openModal(modal);
@@ -154,21 +211,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.target === element) closeModal(element.closest('.modal-overlay'));
         });
     });
-
+    
     document.body.addEventListener('click', (event) => {
         const target = event.target;
 
-        if (target.matches('.delete-address-btn')) {
-            if (confirm('Tem certeza que deseja remover este endereço?')) {
-                const addressId = target.dataset.addressId;
-                userData.addresses = userData.addresses.filter(addr => addr.id != addressId);
-                renderAddressesModal();
-                showToast('Endereço removido com sucesso!', 'success');
-            }
+        if (target.matches('#add-new-address-btn')) {
+            document.getElementById('add-address-form').reset();
+            openModal(document.getElementById('add-address-modal'));
         }
+        if (target.matches('#add-new-payment-btn')) {
+            document.getElementById('add-payment-form').reset();
+            openModal(document.getElementById('add-payment-modal'));
+        }
+
         if (target.matches('.edit-address-btn')) {
             const addressId = target.dataset.addressId;
-            const address = userData.addresses.find(addr => addr.id == addressId);
+            const address = currentUserData.addresses.find(addr => addr.id == addressId);
             if (address) {
                 document.getElementById('edit-address-id').value = address.id;
                 document.getElementById('edit-street').value = address.street;
@@ -178,22 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 openModal(document.getElementById('edit-address-modal'));
             }
         }
-        if (target.matches('#add-new-address-btn')) {
-            document.getElementById('add-address-form').reset();
-            openModal(document.getElementById('add-address-modal'));
-        }
-
-        if (target.matches('.delete-payment-btn')) {
-            if (confirm('Tem certeza que deseja remover este cartão?')) {
-                const paymentId = target.dataset.paymentId;
-                userData.paymentMethods = userData.paymentMethods.filter(p => p.id != paymentId);
-                renderPaymentsModal();
-                showToast('Cartão removido com sucesso!', 'success');
-            }
-        }
         if (target.matches('.edit-payment-btn')) {
             const paymentId = target.dataset.paymentId;
-            const payment = userData.paymentMethods.find(p => p.id == paymentId);
+            const payment = currentUserData.paymentMethods.find(p => p.id == paymentId);
             if (payment) {
                 document.getElementById('edit-payment-id').value = payment.id;
                 document.getElementById('edit-card-type').value = payment.type;
@@ -202,83 +247,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 openModal(document.getElementById('edit-payment-modal'));
             }
         }
-        if (target.matches('#add-new-payment-btn')) {
-            document.getElementById('add-payment-form').reset();
-            openModal(document.getElementById('add-payment-modal'));
+        if (target.matches('.delete-address-btn')) {
+            const addressId = target.dataset.addressId;
+            if (confirm('Tem certeza que deseja remover este endereço?')) {
+                // await fetch(`/api/addresses/${addressId}`, { method: 'DELETE', ... })
+                showToast('API de remoção de endereço não implementada', 'error');
+            }
+        }
+        if (target.matches('.delete-payment-btn')) {
+             const paymentId = target.dataset.paymentId;
+            if (confirm('Tem certeza que deseja remover este cartão?')) {
+                 // await fetch(`/api/payments/${paymentId}`, { method: 'DELETE', ... })
+                showToast('API de remoção de cartão não implementada', 'error');
+            }
         }
     });
 
-    document.getElementById('edit-profile-form').addEventListener('submit', (e) => { e.preventDefault(); /* ...código inalterado... */ });
-
-    document.getElementById('add-address-form').addEventListener('submit', (e) => {
+    document.getElementById('add-address-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const isDefault = document.getElementById('add-default-address').checked;
-        if (isDefault) userData.addresses.forEach(addr => addr.default = false);
-        
-        const newAddress = {
-            id: Date.now(), //CORRIGIR IMEDIATAMENTE NAO DEIXEM ISSO ADIEL NEM TONY
-            street: document.getElementById('add-street').value,
-            city: document.getElementById('add-city').value,
-            cep: document.getElementById('add-cep').value,
-            default: isDefault
-        };
-        userData.addresses.push(newAddress);
-        renderAddressesModal();
+        // TEM QUE FAZER A LÓGICA DE MANDAR PRA API AINDA VEJA ISSO TONY
+        showToast('Endereço adicionado com sucesso! (Simulação)', 'success');
         closeModal(document.getElementById('add-address-modal'));
-        showToast('Endereço adicionado com sucesso!', 'success');
+        // loadUserProfile(); 
     });
 
-    document.getElementById('edit-address-form').addEventListener('submit', (e) => {
+    document.getElementById('edit-address-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const addressId = document.getElementById('edit-address-id').value;
-        const addressIndex = userData.addresses.findIndex(addr => addr.id == addressId);
-        if (addressIndex !== -1) {
-            const isDefault = document.getElementById('edit-default-address').checked;
-            if (isDefault) userData.addresses.forEach(addr => addr.default = false);
-            
-            userData.addresses[addressIndex] = {
-                id: addressId,
-                street: document.getElementById('edit-street').value,
-                city: document.getElementById('edit-city').value,
-                cep: document.getElementById('edit-cep').value,
-                default: isDefault
-            };
-        }
-        renderAddressesModal();
-        closeModal(document.getElementById('edit-address-modal'));
-        showToast('Endereço atualizado com sucesso!', 'success');
-    });
-
-    document.getElementById('add-payment-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newPayment = {
-            id: Date.now(),
-            type: document.getElementById('add-card-type').value,
-            last4: document.getElementById('add-card-last4').value,
-            expiry: document.getElementById('add-card-expiry').value
+        const updatedAddress = {
+            street: document.getElementById('edit-street').value,
+            city: document.getElementById('edit-city').value,
+            cep: document.getElementById('edit-cep').value,
+            default: document.getElementById('edit-default-address').checked
         };
-        userData.paymentMethods.push(newPayment);
-        renderPaymentsModal();
-        closeModal(document.getElementById('add-payment-modal'));
-        showToast('Cartão adicionado com sucesso!', 'success');
+        showToast('Endereço atualizado com sucesso! (Simulação)', 'success');
+        closeModal(document.getElementById('edit-address-modal'));
+        // loadUserProfile(); // Ativar quando a API estiver pronta
     });
-
-    document.getElementById('edit-payment-form').addEventListener('submit', (e) => {
+    
+    document.getElementById('add-payment-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const paymentId = document.getElementById('edit-payment-id').value;
-        const paymentIndex = userData.paymentMethods.findIndex(p => p.id == paymentId);
-        if (paymentIndex !== -1) {
-            userData.paymentMethods[paymentIndex] = {
-                id: paymentId,
-                type: document.getElementById('edit-card-type').value,
-                last4: document.getElementById('edit-card-last4').value,
-                expiry: document.getElementById('edit-card-expiry').value
-            };
-        }
-        renderPaymentsModal();
-        closeModal(document.getElementById('edit-payment-modal'));
-        showToast('Cartão atualizado com sucesso!', 'success');
+        showToast('Cartão adicionado com sucesso! (Simulação)', 'success');
+        closeModal(document.getElementById('add-payment-modal'));
+        // loadUserProfile();
     });
 
-    initializeProfileDropdown();
+    document.getElementById('edit-payment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showToast('Cartão atualizado com sucesso! (Simulação)', 'success');
+        closeModal(document.getElementById('edit-payment-modal'));
+        // loadUserProfile();
+    });
+
+    initializeGlobalUI();
+    loadUserProfile();
 });

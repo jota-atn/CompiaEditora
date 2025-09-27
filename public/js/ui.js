@@ -446,3 +446,56 @@ export function initializeProfileDropdown() {
     }
 }
 
+export const initializePixModal = () => {
+    const modal = document.getElementById('pix-modal');
+    if (!modal) return () => {};
+
+    const modalContent = document.getElementById('pix-modal-content');
+    const closeModalBtn = document.getElementById('close-pix-modal');
+    const qrCodeImg = document.getElementById('pix-qrcode-image');
+    const pixCodeInput = document.getElementById('pix-copy-paste-code');
+    const copyBtn = document.getElementById('copy-pix-code-btn');
+    const confirmedBtn = document.getElementById('pix-confirmed-btn');
+
+    const closeModal = () => {
+        modalContent.classList.remove('scale-100');
+        modal.classList.remove('opacity-100');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    const copyPixCode = () => {
+        navigator.clipboard.writeText(pixCodeInput.value).then(() => {
+            copyBtn.textContent = 'Copiado!';
+            setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+        }).catch(err => {
+            console.error('Falha ao copiar o código PIX:', err);
+            alert('Não foi possível copiar o código.');
+        });
+    };
+
+    const finalizeOrder = () => {
+        alert('Pagamento confirmado! Obrigado por comprar na COMPIA.');
+        localStorage.removeItem('cart'); 
+        window.location.href = './index.html'; 
+    };
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal(); 
+    });
+    copyBtn.addEventListener('click', copyPixCode);
+    confirmedBtn.addEventListener('click', finalizeOrder);
+
+    const openPixModal = (qrCodeBase64, payload) => {
+        qrCodeImg.src = qrCodeBase64;
+        pixCodeInput.value = payload;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    };
+
+    return openPixModal;
+}

@@ -1,4 +1,5 @@
 import sqlite3 from 'sqlite3';
+import bcrypt from 'bcrypt';
 //Importando o SQLite pro Node
 
     //Tenta conectar ao BD, em caso de sucesso chama a função de criar tabelas, em caso de falha retorna erro.
@@ -32,6 +33,26 @@ export function createTables(callback) {
         `, (err) => {
             if (err) console.error('Erro ao criar tabela "books":', err.message);
             else console.log('Tabela "books" verificada/pronta.');
+        });
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                phone TEXT,
+                birthDate TEXT,
+                cpf TEXT UNIQUE,
+                profilePicture TEXT,
+                isAdmin INTEGER DEFAULT 0
+            )
+        `, (err) => {
+            if (err) {
+                console.error('Erro ao criar tabela "users":', err.message);
+            } else {
+                console.log('Tabela "users" verificada/pronta.');
+            }
         });
 
         // Cria a tabela de edições de livros
@@ -187,7 +208,115 @@ export function updateBook(id, book, callback) {
     });
 }
 
+
+export function createUser(user, callback) {
+    // Criptografa a senha com bcrypt antes de salvar
+    bcrypt.hash(user.password, 10, (err, hash) => {
+        if (err) return callback(err);
+
+        // Query que insere todos os campos
+            const query = `
+            INSERT INTO users (name, email, password, phone, birthDate, cpf, profilePicture, isAdmin) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        // Passa todos os dados do objeto 'user'
+         db.run(query, [
+            user.name, 
+            user.email, 
+            hash, 
+            user.phone, 
+            user.birthDate, 
+            user.cpf, 
+            user.profilePicture,
+            user.isAdmin || 0
+        ], function(err) {
+            if (err) return callback(err);
+            // Retorna o ID do novo usuário criado
+            callback(null, { id: this.lastID });
+        });
+    });
+}
+
+export function findUserByEmail(email, callback) {
+    db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
+        callback(err, user);
+    });
+}
+
+/**
+ * Busca um usuário pelo ID, mas sem retornar a senha.
+ * Útil para buscar os dados do perfil do usuário logado.
+ */
+export function findUserById(id, callback) {
+    // Exceto a senha, por segurança.
+    const query = `
+        SELECT *
+        FROM users 
+        WHERE id = ?
+    `;
+    db.get(query, [id], (err, user) => {
+        callback(err, user);
+    });
+}
+
+/**
+ * Atualiza os dados de um usuário no banco de forma dinâmica.
+ * Esta função   só atualiza os campos que são enviados.
+ */
+export function updateUser(id, userData, callback) {
+    // Lista de campos que permitimos que sejam atualizados
+    const allowedFields = ['name', 'email', 'phone', 'birthDate', 'cpf', 'profilePicture'];
+    
+    const fieldsToUpdate = [];
+    const values = [];
+
+    // Itera sobre os campos permitidos
+    allowedFields.forEach(field => {
+        // Se o dado enviado (userData) contém um dos campos permitidos...
+        if (userData[field] !== undefined) {
+            // Adiciona "nome_do_campo = ?" à nossa query
+            fieldsToUpdate.push(`${field} = ?`);
+            // Adiciona o valor correspondente ao array de valores
+            values.push(userData[field]);
+        }
+    });
+
+    // Se nenhum campo válido foi enviado, não há nada a fazer.
+    if (fieldsToUpdate.length === 0) {
+        return callback(null, true); // Retorna sucesso, pois não havia nada para dar errado.
+    }
+
+    // Adiciona o ID do usuário ao final do array de valores para a cláusula WHERE
+    values.push(id);
+
+    // Monta a query final. Ex: UPDATE users SET name = ?, phone = ? WHERE id = ?
+    const query = `
+        UPDATE users 
+        SET ${fieldsToUpdate.join(', ')}
+        WHERE id = ?
+    `;
+    
+    db.run(query, values, function(err) {
+        if (err) {
+            // Isso vai pegar erros de CPF/Email duplicado
+            return callback(err);
+        }
+        callback(null, this.changes > 0);
+    });
+}
+
+/**
+ * Deleta um usuário do banco de dados.
+ */
+export function deleteUser(id, callback) {
+    const query = `DELETE FROM users WHERE id = ?`;
+    db.run(query, [id], function(err) {
+        if (err) return callback(err);
+        // Retorna true se uma linha foi deletada
+        callback(null, this.changes > 0);
+    });
+}
+
 // Exporta as funções e o objeto db
 export default db;
-
-//TODO: Criar a parte de usuários
