@@ -126,8 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const isShippingValid = () => {
         const shipping = shippingEl.textContent;
-        console.log("shipping: ");
-        console.log(shipping);
         return shipping !== 'A calcular...' && shipping !== 'Calculando...' && shipping !== 'Indisponível';
     };
 
@@ -184,8 +182,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     
     const toggleConfirmButton = () => {
-        console.log(checkFormValidity());
-        console.log(isShippingValid());
         if (checkFormValidity() && isShippingValid()) {
             confirmBtn.disabled = false;
             confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
