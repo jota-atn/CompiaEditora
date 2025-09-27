@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDERIZAÇÃO ---
     function renderProfileData(user) {
-        document.getElementById('profile-pic').src = user.profilePicture || 'https://i.stack.imgur.com/34AD2.jpg';
+        document.getElementById('profile-pic').src = user.profilePicture || '/public/images/default-profile.png';
         document.getElementById('profile-name').textContent = user.name || 'Não informado';
         document.getElementById('profile-email').textContent = user.email || 'Não informado';
         document.getElementById('profile-phone').textContent = user.phone ? formatPhone(user.phone) : 'Não informado';
@@ -124,6 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
             cpfInput.value = '';
             cpfInput.disabled = false; 
             cpfInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        }
+
+        const adminBtn = document.getElementById('admin-panel-btn');
+        if (adminBtn && user.isAdmin) {
+            // Se o botão existir e o usuário for admin, remove a classe 'hidden'
+            adminBtn.classList.remove('hidden');
         }
     }
 

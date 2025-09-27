@@ -50,13 +50,13 @@ export const login = (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             if (!isMatch) return res.status(401).json({ message: 'Credenciais inválidas.' });
             
-            const payload = { id: user.id, email: user.email };
+            const payload = { id: user.id, email: user.email, isAdmin: user.isAdmin };
             const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
             res.status(200).json({
                 message: 'Login bem-sucedido!',
                 token: token,
-                user: { id: user.id, name: user.name, email: user.email }
+                user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin }
             });
         });
     });

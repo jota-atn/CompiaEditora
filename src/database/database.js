@@ -44,7 +44,8 @@ export function createTables(callback) {
                 phone TEXT,
                 birthDate TEXT,
                 cpf TEXT UNIQUE,
-                profilePicture TEXT
+                profilePicture TEXT,
+                isAdmin INTEGER DEFAULT 0
             )
         `, (err) => {
             if (err) {
@@ -213,16 +214,22 @@ export function createUser(user, callback) {
     bcrypt.hash(user.password, 10, (err, hash) => {
         if (err) return callback(err);
 
-        // Query que insere todos os campos, incluindo a foto
-        const query = `
-            INSERT INTO users (name, email, password, phone, birthDate, cpf, profilePicture) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+        // Query que insere todos os campos
+            const query = `
+            INSERT INTO users (name, email, password, phone, birthDate, cpf, profilePicture, isAdmin) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         // Passa todos os dados do objeto 'user'
-        db.run(query, [
-            user.name, user.email, hash, user.phone, 
-            user.birthDate, user.cpf, user.profilePicture 
+         db.run(query, [
+            user.name, 
+            user.email, 
+            hash, 
+            user.phone, 
+            user.birthDate, 
+            user.cpf, 
+            user.profilePicture,
+            user.isAdmin || 0
         ], function(err) {
             if (err) return callback(err);
             // Retorna o ID do novo usuário criado
@@ -244,7 +251,7 @@ export function findUserByEmail(email, callback) {
 export function findUserById(id, callback) {
     // Exceto a senha, por segurança.
     const query = `
-        SELECT id, name, email, phone, birthDate, cpf, profilePicture 
+        SELECT *
         FROM users 
         WHERE id = ?
     `;
