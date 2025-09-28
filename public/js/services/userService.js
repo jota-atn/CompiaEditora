@@ -1,38 +1,65 @@
+const API_URL = '/api/users/profile';
+
 /**
- * Busca os dados do perfil do usuário atualmente logado.
- * Requer um token de autenticação válido no localStorage.
- * @async
- * @returns {Promise<object>} Uma Promise que resolve para o objeto com os dados do usuário.
- * @throws {Error} Lança um erro se o token não for encontrado, se a sessão expirar, ou se houver falha na rede.
+ * Busca os dados do perfil do usuário logado na API.
  */
 export const getUserProfile = async () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
-        throw new Error('Usuário não autenticado.');
+        throw new Error('Sessão expirada. Faça login novamente.');
     }
 
-    try {
-        const response = await fetch('/api/users/profile', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('authToken');
-            throw new Error('Sua sessão expirou. Por favor, faça login novamente.');
+    const response = await fetch(API_URL, {
+        headers: {
+            'Authorization': `Bearer ${token}`
         }
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Não foi possível buscar os dados do perfil.');
-        }
-
-        return await response.json();
-
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        throw new Error('Sessão expirada. Faça login novamente.');
     }
-}
+    return response.json();
+};
+
+/**
+ * Envia os dados atualizados do perfil para a API.
+ */
+export const updateUserProfile = async (userData) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(userData)
+    });
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Falha ao atualizar o perfil.');
+    }
+    return response.json();
+};
+
+export const deleteUserProfile = async () => {
+    const token = localStorage.getItem('authToken'); 
+    if (!token) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
+    const response = await fetch(API_URL, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Falha ao deletar a conta.');
+    }
+    return response.json();
+};

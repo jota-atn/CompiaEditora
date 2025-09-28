@@ -10,7 +10,8 @@
 *.db-journal
 
 # Arquivos de ambiente (para guardar senhas e chaves de API no futuro)
-.env
+#EM PROJETO REAL, NÃO SE ENVIARIA O .env, MAS COMO É APENAS PARA DEMONSTRAÇÃO E NÃO GUARDAMOS INFORMAÇÕES SIGILOSAS, ESTAREMOS ENVIANDO PARA FACILITAR A ENTREGA
+# .env
 
 # Logs de erro e debug
 *.log

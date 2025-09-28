@@ -55,6 +55,21 @@ export function createTables(callback) {
             }
         });
 
+        db.run(`
+            CREATE TABLE IF NOT EXISTS addresses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                street TEXT NOT NULL,
+                city TEXT NOT NULL,
+                cep TEXT NOT NULL,
+                is_default INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        `, (err) => {
+            if (err) console.error('Erro ao criar tabela "addresses":', err.message);
+            else console.log('Tabela "addresses" verificada/pronta.');
+        });
+
         // Cria a tabela de edições de livros
         // Segunda tabela necessária para seguir as formas normais
         db.run(`
@@ -71,6 +86,37 @@ export function createTables(callback) {
             else console.log('Tabela "editions" verificada/pronta.');
         //Callback para controlar a ordem de execução
             callback?.()
+        });
+         db.run(`
+            CREATE TABLE IF NOT EXISTS orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                address_id INTEGER,
+                total_price REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Processando',
+                order_date TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+                FOREIGN KEY (address_id) REFERENCES addresses(id) ON DELETE SET NULL
+            )
+        `, (err) => {
+            if (err) console.error('Erro ao criar tabela "orders":', err.message);
+            else console.log('Tabela "orders" verificada/pronta.');
+        });
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS order_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                order_id INTEGER NOT NULL,
+                book_title TEXT NOT NULL,
+                format TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                price REAL NOT NULL,
+                cover_image TEXT,
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+            )
+        `, (err) => {
+            if (err) console.error('Erro ao criar tabela "order_items":', err.message);
+            else console.log('Tabela "order_items" verificada/pronta.');
         });
     });
 }
@@ -318,5 +364,164 @@ export function deleteUser(id, callback) {
     });
 }
 
+/**
+ * Busca todos os endereços de um usuário específico.
+ */
+export function findAddressesByUserId(userId, callback) {
+    const query = `SELECT id, street, city, cep, is_default as "default" FROM addresses WHERE user_id = ?`;
+    db.all(query, [userId], (err, rows) => {
+        callback(err, rows);
+    });
+}
+
+/**
+ * Adiciona um novo endereço para um usuário.
+ */
+export function addAddress(userId, addressData, callback) {
+    const query = `INSERT INTO addresses (user_id, street, city, cep, is_default) VALUES (?, ?, ?, ?, ?)`;
+    db.run(query, [userId, addressData.street, addressData.city, addressData.cep, addressData.default ? 1 : 0], function(err) {
+        if (err) return callback(err);
+        callback(null, { id: this.lastID });
+    });
+}
+
+/**
+ * Atualiza um endereço existente.
+ */
+export function updateAddress(addressId, addressData, callback) {
+    const query = `UPDATE addresses SET street = ?, city = ?, cep = ?, is_default = ? WHERE id = ?`;
+    db.run(query, [addressData.street, addressData.city, addressData.cep, addressData.default ? 1 : 0, addressId], function(err) {
+        if (err) return callback(err);
+        callback(null, this.changes > 0);
+    });
+}
+
+/**
+ * Deleta um endereço.
+ */
+export function deleteAddress(addressId, callback) {
+    const query = `DELETE FROM addresses WHERE id = ?`;
+    db.run(query, [addressId], function(err) {
+        if (err) return callback(err);
+        callback(null, this.changes > 0);
+    });
+}
+
+/**
+ * Cria um novo pedido com seus itens no banco de dados.
+ */
+export function createOrder(userId, orderData, callback) {
+    const { addressId, totalPrice, items, orderDate } = orderData;
+    
+    const orderQuery = `INSERT INTO orders (user_id, address_id, total_price, order_date) VALUES (?, ?, ?, ?)`;
+
+    db.run(orderQuery, [userId, addressId, totalPrice, orderDate], function(err) {
+        if (err) return callback(err);
+        
+        const orderId = this.lastID;
+        const itemQuery = `INSERT INTO order_items (order_id, book_title, format, quantity, price, cover_image) VALUES (?, ?, ?, ?, ?, ?)`;
+        
+        let itemsToInsert = items.length;
+        let insertedCount = 0;
+        
+        items.forEach(item => {
+            db.run(itemQuery, [
+                orderId,
+                item.title,
+                item.format,
+                item.quantity,
+                item.price,
+                item.coverImage
+            ], (err) => {
+                if (err) console.error('Erro ao inserir item do pedido:', err);
+                
+                insertedCount++;
+                if (insertedCount === itemsToInsert) {
+                    callback(null, { id: orderId });
+                }
+            });
+        });
+    });
+}
+
+/**
+ * Busca todos os pedidos de um usuário, incluindo os itens de cada pedido.
+ */
+export function findOrdersByUserId(userId, callback) {
+    const query = `SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC`;
+    db.all(query, [userId], (err, orders) => {
+        if (err) return callback(err);
+        if (orders.length === 0) return callback(null, []);
+
+        let ordersProcessed = 0;
+        orders.forEach(order => {
+            const itemsQuery = `SELECT * FROM order_items WHERE order_id = ?`;
+            db.all(itemsQuery, [order.id], (err, items) => {
+                if (err) return callback(err); // Em um caso real, trataríamos o erro melhor
+                order.items = items;
+                ordersProcessed++;
+                if (ordersProcessed === orders.length) {
+                    callback(null, orders);
+                }
+            });
+        });
+    });
+}
+
+export function getAllUsers(callback) {
+    // Seleciona todos os campos, exceto a senha (password) por segurança.
+    const query = `
+        SELECT id, name, email, phone, birthDate, cpf, profilePicture, isAdmin 
+        FROM users
+    `;
+    db.all(query, [], (err, users) => {
+        callback(err, users);
+    });
+}
+
+/**
+ * Busca TODOS os pedidos do banco, juntando o nome do cliente e os itens.
+ * Ideal para a listagem no painel de admin.
+ */
+export function getAllOrders(callback) {
+    const query = `
+        SELECT 
+            o.id, 
+            o.total_price, 
+            o.status, 
+            o.order_date,
+            -- Usa COALESCE para evitar erro se o usuário for deletado
+            COALESCE(u.name, 'Usuário Removido') as userName,
+            COALESCE(u.email, '-') as userEmail
+        FROM orders o
+        LEFT JOIN users u ON o.user_id = u.id
+        ORDER BY o.order_date DESC
+    `;
+    db.all(query, [], (err, orders) => {
+        if (err) {
+            console.error("Erro na query principal de getAllOrders:", err);
+            return callback(err);
+        }
+        if (orders.length === 0) {
+            return callback(null, []);
+        }
+
+        let ordersProcessed = 0;
+        orders.forEach(order => {
+            const itemsQuery = `SELECT * FROM order_items WHERE order_id = ?`;
+            db.all(itemsQuery, [order.id], (err, items) => {
+                if (err) {
+                     console.error(`Erro ao buscar itens para o pedido ID ${order.id}:`, err);
+                    return callback(err);
+                }
+                order.items = items;
+                ordersProcessed++;
+                if (ordersProcessed === orders.length) {
+                    callback(null, orders);
+                }
+            });
+        });
+    });
+}
 // Exporta as funções e o objeto db
 export default db;

@@ -25,7 +25,9 @@ function startServer() {
       // 3. Se o banco estiver vazio (count === 0), popule-o
       if (row.count === 0) {
         console.log("Banco de dados vazio. Iniciando 'seed'...");
-        seedDatabase(() => {
+
+        seedDatabase({ createRandomData: true }, () => {
+          
           // 4. Após popular, inicie o servidor
           console.log("Seed concluído.");
           app.listen(PORT, () => {

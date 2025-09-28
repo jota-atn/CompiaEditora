@@ -115,3 +115,4 @@ export const deleteUserProfile = (req, res) => {
         res.status(200).json({ message: 'Usuário deletado com sucesso.' });
     });
 };
+

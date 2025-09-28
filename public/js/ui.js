@@ -103,6 +103,31 @@ export function initializeGlobalUI() {
     });
 }
 
+export function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    toast.className = `p-4 rounded-lg shadow-lg text-white font-semibold transform transition-all duration-300 ease-out ${bgColor} translate-y-4 opacity-0`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
+    setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-x-full');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 4000);
+}
+
+export function openModal(modal) {
+    if (!modal) return;
+    modal.classList.add('modal-active');
+}
+
+export function closeModal(modal) {
+    if (!modal) return;
+    modal.classList.remove('modal-active');
+}
+
 export function setupSearchRedirect() {
     const searchInput = document.getElementById('search-input');
     if (!searchInput) return;
@@ -452,11 +477,29 @@ export const initializePixModal = () => {
     const pixCodeInput = document.getElementById('pix-copy-paste-code');
     const copyBtn = document.getElementById('copy-pix-code-btn');
     const confirmedBtn = document.getElementById('pix-confirmed-btn');
+    
+    let orderDataToFinalize = null;
 
-    const closeModal = () => {
+    const closeModalFunc = () => {
         modalContent.classList.remove('scale-100');
         modal.classList.remove('opacity-100');
         setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    const finalizeOrder = async () => {
+        if (!orderDataToFinalize) {
+            alert('Erro: Dados do pedido não encontrados.');
+            return;
+        }
+        try {
+            await createOrder(orderDataToFinalize);
+            
+            alert('Pagamento confirmado! Obrigado por comprar na COMPIA.');
+            localStorage.removeItem('cart'); 
+            window.location.href = './perfil.html'; 
+        } catch (error) {
+            alert(`Não foi possível salvar seu pedido: ${error.message}`);
+        }
     };
 
     const copyPixCode = () => {
@@ -469,20 +512,13 @@ export const initializePixModal = () => {
         });
     };
 
-    const finalizeOrder = () => {
-        alert('Pagamento confirmado! Obrigado por comprar na COMPIA.');
-        localStorage.removeItem('cart'); 
-        window.location.href = './index.html'; 
-    };
-
-    closeModalBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal(); 
-    });
+    closeModalBtn.addEventListener('click', closeModalFunc);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
     copyBtn.addEventListener('click', copyPixCode);
     confirmedBtn.addEventListener('click', finalizeOrder);
 
-    const openPixModal = (qrCodeBase64, payload) => {
+     const openPixModal = (qrCodeBase64, payload, orderData) => {
+        orderDataToFinalize = orderData;
         qrCodeImg.src = qrCodeBase64;
         pixCodeInput.value = payload;
         

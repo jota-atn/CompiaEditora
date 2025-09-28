@@ -82,16 +82,38 @@
 
                 <section class="mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Endereço de Entrega</h2>
-                    <div class="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="CEP" class="md:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Rua / Avenida" class="md:col-span-2 border p-2 rounded-md">
-                        <input type="text" placeholder="Número" class="md:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Complemento (Opcional)" class="md:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Bairro" class="md:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Cidade" class="md:col-span-1 border p-2 rounded-md">
-                        <input type="text" placeholder="Estado" class="md:col-span-1 border p-2 rounded-md">
+
+                    <div id="saved-addresses-container" class="space-y-3 bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-center text-gray-500">Carregando seus endereços...</p>
                     </div>
-                </section>
+
+                    <div id="address-form-container" class="mt-4 bg-white p-6 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="checkout-cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                            <input type="text" placeholder="00000-000" id="checkout-cep" class="w-full border p-2 rounded-md mt-1">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="checkout-rua" class="block text-sm font-medium text-gray-700">Rua / Avenida</label>
+                            <input type="text" placeholder="Sua rua ou avenida" id="checkout-rua" class="w-full border p-2 rounded-md mt-1 bg-gray-100" disabled>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="checkout-numero" class="block text-sm font-medium text-gray-700">Número</label>
+                            <input type="text" placeholder="Nº" id="checkout-numero" class="w-full border p-2 rounded-md mt-1">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label for="checkout-complemento" class="block text-sm font-medium text-gray-700">Complemento (Opcional)</label>
+                            <input type="text" placeholder="Apto, bloco, etc." id="checkout-complemento" class="w-full border p-2 rounded-md mt-1">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="checkout-bairro" class="block text-sm font-medium text-gray-700">Bairro</label>
+                            <input type="text" placeholder="Seu bairro" id="checkout-bairro" class="w-full border p-2 rounded-md mt-1 bg-gray-100">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="checkout-cidade" class="block text-sm font-medium text-gray-700">Cidade e Estado</label>
+                            <input type="text" placeholder="Cidade - UF" id="checkout-cidade" class="w-full border p-2 rounded-md mt-1 bg-gray-100" disabled>
+                        </div>
+                    </div>
+                </section>  
 
                 <section>
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Forma de Pagamento</h2>

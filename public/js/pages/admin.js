@@ -68,22 +68,95 @@ function renderProductsTable() {
     }).join('');
 }
 
+function formatCPF(cpf) {
+    if (!cpf || cpf.length !== 11) return "CPF Inválido";
+    // Formata para 123.***.***-45
+    return `${cpf.substring(0, 3)}.***.***-${cpf.substring(9, 11)}`;
+}
+
 function renderOrdersTable() {
     const tableBody = document.getElementById('orders-table-body');
     if (!tableBody) return;
-    tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">API de Pedidos ainda não conectada.</td></tr>`;
+
+    if (allOrders.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = allOrders.map(order => `
+        <tr>
+            <td class="p-4 font-medium text-gray-800">#${order.id}</td>
+            <td class="p-4 text-gray-600">${order.userName || 'Usuário Deletado'}</td>
+            <td class="p-4 text-gray-600">${new Date(order.order_date).toLocaleDateString('pt-BR')}</td>
+            <td class="p-4 font-medium text-gray-800">R$ ${order.total_price.toFixed(2).replace('.', ',')}</td>
+            <td class="p-4">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    ${order.status}
+                </span>
+            </td>
+        </tr>
+    `).join('');
 }
 
 function renderUsersTable() {
     const tableBody = document.getElementById('users-table-body');
     if (!tableBody) return;
-    tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">API de Usuários ainda não conectada.</td></tr>`;
+    
+    if (allUsers.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">Nenhum usuário encontrado.</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = allUsers.map(user => `
+        <tr>
+            <td class="p-4 font-medium text-gray-800">${user.id}</td>
+            <td class="p-4 text-gray-600">${user.name}</td>
+            <td class="p-4 text-gray-600">${user.email}</td>
+            <td class="p-4 text-gray-600">${formatCPF(user.cpf)}</td>
+        </tr>
+    `).join('');
+}
+
+async function loadOrders() {
+    try {
+        const token = localStorage.getItem('authToken');
+        
+        const response = await fetch('/api/orders/all', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Falha ao carregar pedidos.');
+        allOrders = await response.json();
+    } catch (error) {
+        console.error("Falha ao carregar pedidos:", error);
+        showToast("Não foi possível carregar os pedidos.", "error");
+    }
+}
+
+
+async function loadUsers() {
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/users/all', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Falha ao carregar usuários.');
+        allUsers = await response.json();
+    } catch (error) {
+        console.error("Falha ao carregar usuários:", error);
+        showToast("Não foi possível carregar os usuários.", "error");
+    }
 }
 
 async function loadData() {
-    // Por enquanto, apenas livros. Depois expandiremos para os outros.
-    await loadBooks();
+    // Usamos Promise.all para carregar tudo em paralelo
+    await Promise.all([
+        loadBooks(),
+        loadOrders(),
+        loadUsers()
+    ]);
 }
+
 
 async function loadBooks() {
     try {
@@ -117,8 +190,51 @@ async function loadCategories() {
     }
 }
 
-async function saveBook(bookData, id) { /* ...código inalterado... */ }
-async function deleteBook(id) { /* ...código inalterado... */ }
+async function saveBook(bookData, id) {
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `/api/books/${id}` : '/api/books';
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bookData)
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || `Falha ao ${id ? 'atualizar' : 'salvar'} o livro.`);
+        }
+        
+        showToast(`Livro ${id ? 'atualizado' : 'salvo'} com sucesso!`, 'success');
+        closeModal(document.getElementById('book-modal'));
+        await loadBooks(); 
+
+    } catch (error) {
+        console.error(`Erro ao salvar livro:`, error);
+        showToast(error.message, 'error');
+    }
+}
+
+async function deleteBook(id) {
+    try {
+        const response = await fetch(`/api/books/${id}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Falha ao deletar o livro.');
+        }
+
+        showToast('Livro deletado com sucesso!', 'success');
+        await loadBooks();
+
+    } catch (error) {
+        console.error('Erro ao deletar livro:', error);
+        showToast(error.message, 'error');
+    }
+}
 
 
 document.addEventListener('DOMContentLoaded', async () => {

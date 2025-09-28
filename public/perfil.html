@@ -100,10 +100,16 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
+           <div class="lg:col-span-2">
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Gerenciar Conta</h2>
                     <div class="space-y-4">
+                        
+                        <a href="admin.html" id="admin-panel-btn" class="profile-action-btn hidden">
+                            <span class="font-bold text-blue-700">Painel do Administrador</span>
+                            <span class="text-blue-700">&rarr;</span>
+                        </a>
+
                         <button data-modal="address-modal" class="profile-action-btn">
                             <span>Endereços</span>
                             <span class="text-gray-400">&rarr;</span>
@@ -116,9 +122,20 @@
                             <span>Editar Meus Dados</span>
                             <span class="text-gray-400">&rarr;</span>
                         </button>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 flex justify-end items-center gap-6">
+        <button id="delete-account-btn" class="text-sm text-red-600 hover:text-red-800 hover:underline font-medium">
+            Deletar Conta
+        </button>
+        <button id = "logout-btn" class="logout-btn text-sm bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-lg transition-colors">
+
+            Sair da Conta
+
+        </button> 
+    </div>
+</div>
         </div>
     </main>
 
@@ -128,7 +145,7 @@
         </div>
     </footer>
 
-    <div id="address-modal" class="modal-overlay hidden">
+    <div id="address-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="modal-title mb-0">Meus Endereços</h3>
@@ -143,7 +160,7 @@
         </div>
     </div>
 
-    <div id="data-modal" class="modal-overlay hidden">
+    <div id="data-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="modal-title mb-0">Editar Meus Dados</h3>
@@ -180,7 +197,7 @@
         </div>
     </div>
     
-    <div id="orders-modal" class="modal-overlay hidden">
+    <div id="orders-modal" class="modal-overlay">
         <div class="modal-content max-w-3xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="modal-title mb-0">Meus Pedidos</h3>
@@ -194,28 +211,31 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Adicionar Novo Endereço</h3><button class="modal-close">&times;</button></div>
             <form id="add-address-form" class="space-y-4">
+                <div><label for="add-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="add-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
                 <div><label for="add-street" class="block text-sm font-medium text-gray-700">Rua e Número</label><input type="text" id="add-street" class="w-full mt-1 p-2 border rounded-md" required></div>
                 <div><label for="add-city" class="block text-sm font-medium text-gray-700">Cidade e Estado</label><input type="text" id="add-city" class="w-full mt-1 p-2 border rounded-md" required></div>
-                <div><label for="add-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="add-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
+                
                 <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="add-default-address" class="h-4 w-4 rounded border-gray-300"><label for="add-default-address" class="text-sm">Definir como padrão</label></div>
                 <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-blue-700 text-white py-2 rounded-lg font-semibold">Adicionar Endereço</button></div>
             </form>
         </div>
     </div>
 
-    <div id="edit-address-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Editar Endereço</h3><button class="modal-close">&times;</button></div>
-            <form id="edit-address-form" class="space-y-4">
-                <input type="hidden" id="edit-address-id">
-                <div><label for="edit-street" class="block text-sm font-medium text-gray-700">Rua e Número</label><input type="text" id="edit-street" class="w-full mt-1 p-2 border rounded-md" required></div>
-                <div><label for="edit-city" class="block text-sm font-medium text-gray-700">Cidade e Estado</label><input type="text" id="edit-city" class="w-full mt-1 p-2 border rounded-md" required></div>
-                <div><label for="edit-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="edit-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
-                <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="edit-default-address" class="h-4 w-4 rounded border-gray-300"><label for="edit-default-address" class="text-sm">Definir como endereço padrão</label></div>
-                <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold">Salvar Alterações</button></div>
-            </form>
-        </div>
+    <div id="edit-address-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6"><h3 class="modal-title mb-0">Editar Endereço</h3><button class="modal-close">&times;</button></div>
+        <form id="edit-address-form" class="space-y-4">
+            <input type="hidden" id="edit-address-id">
+            
+            <div><label for="edit-street" class="block text-sm font-medium text-gray-700">Rua e Número</label><input type="text" id="edit-street" class="w-full mt-1 p-2 border rounded-md" required></div>
+            <div><label for="edit-city" class="block text-sm font-medium text-gray-700">Cidade e Estado</label><input type="text" id="edit-city" class="w-full mt-1 p-2 border rounded-md" required></div>
+            <div><label for="edit-cep" class="block text-sm font-medium text-gray-700">CEP</label><input type="text" id="edit-cep" class="w-full mt-1 p-2 border rounded-md" required></div>
+            
+            <div class="flex items-center gap-2 mt-2"><input type="checkbox" id="edit-default-address" class="h-4 w-4 rounded border-gray-300"><label for="edit-default-address" class="text-sm">Definir como endereço padrão</label></div>
+            <div class="mt-6 border-t pt-4"><button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold">Salvar Alterações</button></div>
+        </form>
     </div>
+</div>
 
     <div id="add-payment-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -270,6 +290,9 @@
     
     <div id="toast-container" class="fixed bottom-5 right-5 z-[99] space-y-3"></div>
     <input type="file" id="profile-pic-input" class="hidden" accept="image/*">
+    
+    <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+    
     <script type="module" src="js/pages/perfil.js"></script>
 </body>
 </html>

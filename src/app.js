@@ -8,6 +8,8 @@ import freteRoutes from './routes/frete.js';
 import cepRoutes from './routes/cep.js'
 import pagamentoRoutes from './routes/pagamento.js'
 import userRouter from './routes/users.js';
+import addressRouter from './routes/address.js';
+import orderRouter from './routes/orders.js';
  
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -19,12 +21,14 @@ app.use(express.json()); // Habilita o Express a ler JSON
 // Servir arquivos estáticos (HTML, CSS, JS do front)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// booksRouter irá gerenciar as requisições para /api/books
+// routes para gerenciar as requisições paras api
 app.use('/api/books', booksRouter);
 app.use('/api/frete', freteRoutes);
 app.use('/api/cep', cepRoutes);
 app.use('/api/pagamento', pagamentoRoutes);
-app.use('/api/users', userRouter);  
+app.use('/api/users', userRouter);
+app.use('/api/addresses', addressRouter);
+app.use('/api/orders', orderRouter);
 
 // Exporta o app para o server.js usar
 export default app;
