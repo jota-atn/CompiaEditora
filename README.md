@@ -1,7 +1,4 @@
-Sem problemas! Adicionei as instruções de configuração das APIs na seção "Como usar / rodar localmente".
 
-Aqui está o arquivo .md completo e atualizado para você copiar.
-Markdown
 
 # CompiaEditora
 
