@@ -190,9 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (totalInCents <= 0) return alert("O valor total do pedido não pode ser zero.");
             
             const selectedAddressRadio = document.querySelector('input[name="selected_address"]:checked');
-            if (realBooks.length > 0 && !selectedAddressRadio) {
-                return alert('Por favor, selecione ou preencha um endereço de entrega.');
-            }
+
             const addressId = selectedAddressRadio ? selectedAddressRadio.value : null;
 
             const orderData = {
