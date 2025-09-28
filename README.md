@@ -35,6 +35,7 @@ O objetivo é praticar a construção de uma aplicação web full-stack com Node
 
 Este projeto adota uma arquitetura organizada para separar as responsabilidades do Back-end e do Front-end, seguindo as melhores práticas de desenvolvimento com Node.js e Express, facilitando a manutenção e a escalabilidade.
 
+```
 /
 ├── public/
 │   ├── css/
@@ -101,7 +102,7 @@ Este projeto adota uma arquitetura organizada para separar as responsabilidades 
 ├── server.js
 ├── package.json
 └── README.md
-
+```
 
 ### Descrição dos Diretórios
 
