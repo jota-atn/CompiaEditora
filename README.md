@@ -144,7 +144,7 @@ Este projeto adota uma arquitetura organizada para separar as responsabilidades 
 
 1.  **Clone o repositório:**
     ```sh
-    git clone [https://github.com/jota-atn/CompiaEditora.git](https://github.com/jota-atn/CompiaEditora.git)
+    git clone https://github.com/jota-atn/CompiaEditora.git
     cd CompiaEditora
     ```
 
